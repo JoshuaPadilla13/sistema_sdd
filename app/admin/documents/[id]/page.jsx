@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Save, Download, Eye, CheckCircle2 } from 'lucide-react';
-import MarkdownRenderer from '../../../../components/starlight/MarkdownRenderer';
+import BlockEditor from '../../../../components/admin/BlockEditor';
 
 export default function EditDocumentPage() {
   const { id } = useParams();
@@ -13,6 +13,7 @@ export default function EditDocumentPage() {
   const [document, setDocument] = useState(null);
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
+  const [blocks, setBlocks] = useState([]);
   const [rawMarkdown, setRawMarkdown] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -26,11 +27,17 @@ export default function EditDocumentPage() {
           setDocument(data);
           setTitle(data.title || '');
           setSlug(data.slug || '');
+          setBlocks(Array.isArray(data.blocks) ? data.blocks : []);
           setRawMarkdown(data.rawMarkdown || '');
         }
       })
       .finally(() => setLoading(false));
   }, [id]);
+
+  const handleEditorChange = ({ blocks: newBlocks, rawMarkdown: newMd }) => {
+    setBlocks(newBlocks);
+    setRawMarkdown(newMd);
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -41,7 +48,7 @@ export default function EditDocumentPage() {
       const res = await fetch(`/api/docs/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, slug, rawMarkdown }),
+        body: JSON.stringify({ title, slug, blocks, rawMarkdown }),
       });
 
       if (res.ok) {
@@ -60,7 +67,7 @@ export default function EditDocumentPage() {
   if (loading) {
     return (
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '3rem 1.5rem', textAlign: 'center', color: 'var(--sl-color-text-muted)' }}>
-        Cargando documento...
+        Cargando editor de bloques...
       </div>
     );
   }
@@ -86,7 +93,7 @@ export default function EditDocumentPage() {
             <span>Volver</span>
           </Link>
           <h1 style={{ fontSize: '1.5rem', color: 'var(--sl-color-text-title)' }}>
-            Editando: {title}
+            Editor Visual por Bloques: <span style={{ color: 'var(--sl-color-accent)' }}>{title}</span>
           </h1>
         </div>
 
@@ -111,7 +118,7 @@ export default function EditDocumentPage() {
             style={{ fontSize: '0.85rem' }}
           >
             <Save size={14} />
-            <span>{saving ? 'Guardando...' : 'Guardar Cambios'}</span>
+            <span>{saving ? 'Guardando...' : 'Guardar Bloques'}</span>
           </button>
         </div>
       </div>
@@ -130,11 +137,11 @@ export default function EditDocumentPage() {
           fontSize: '0.9rem',
         }}>
           <CheckCircle2 size={18} />
-          <span>Documento y nueva revisión guardados exitosamente en Neon PostgreSQL.</span>
+          <span>Bloques y contenido Markdown guardados exitosamente en Neon PostgreSQL.</span>
         </div>
       )}
 
-      {/* METADATOS BÁSICOS */}
+      {/* METADATOS BÁSICOS (TÍTULO Y SLUG) */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
         <div>
           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sl-color-text-muted)', marginBottom: '0.35rem' }}>
@@ -177,50 +184,12 @@ export default function EditDocumentPage() {
         </div>
       </div>
 
-      {/* EDITOR SPLIT-VIEW (TEXTAREA + PREVIEW) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', minHeight: '600px' }}>
-        {/* Editor Markdown */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ padding: '0.5rem 0', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sl-color-text-muted)' }}>
-            Contenido Markdown (.md):
-          </div>
-          <textarea
-            value={rawMarkdown}
-            onChange={(e) => setRawMarkdown(e.target.value)}
-            style={{
-              flex: 1,
-              width: '100%',
-              padding: '1rem',
-              borderRadius: '8px',
-              background: '#161b22',
-              color: '#f0f6fc',
-              border: '1px solid var(--sl-color-border)',
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
-              fontSize: '0.88rem',
-              lineHeight: 1.5,
-              resize: 'vertical',
-            }}
-          />
-        </div>
-
-        {/* Vista previa en vivo */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ padding: '0.5rem 0', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sl-color-text-muted)' }}>
-            Vista Previa en Vivo:
-          </div>
-          <div style={{
-            flex: 1,
-            padding: '1.5rem',
-            borderRadius: '8px',
-            background: 'var(--sl-color-bg-sidebar)',
-            border: '1px solid var(--sl-color-border)',
-            overflowY: 'auto',
-            maxHeight: '700px',
-          }}>
-            <MarkdownRenderer content={rawMarkdown} />
-          </div>
-        </div>
-      </div>
+      {/* EDITOR VISUAL POR BLOQUES */}
+      <BlockEditor
+        initialBlocks={blocks}
+        initialMarkdown={rawMarkdown}
+        onChange={handleEditorChange}
+      />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { Download, Edit3, ArrowLeft, Calendar, User } from 'lucide-react';
 import Sidebar from '../../../components/starlight/Sidebar';
 import TableOfContents from '../../../components/starlight/TableOfContents';
 import MarkdownRenderer from '../../../components/starlight/MarkdownRenderer';
+import AdminDocActions from '../../../components/starlight/AdminDocActions';
 import { getNavigationTree, getDocumentBySlug } from '../../../lib/services/docs';
 import { extractHeadings } from '../../../lib/toc';
 
@@ -45,30 +46,7 @@ export default async function DocPage({ params }) {
               <span style={{ color: 'var(--sl-color-text-title)' }}>{document.title}</span>
             </div>
 
-            <div style={{ display: 'flex', gap: '0.6rem' }}>
-              {/* Botón Descargar .md */}
-              <a 
-                href={`/api/docs/download/${document.slug}`} 
-                download
-                className="sl-btn sl-btn-outline"
-                style={{ fontSize: '0.82rem', padding: '0.35rem 0.75rem' }}
-                title="Descargar archivo Markdown (.md)"
-              >
-                <Download size={14} />
-                <span>Descargar .md</span>
-              </a>
-
-              {/* Botón Editar para Admin */}
-              <Link
-                href={`/admin/documents/${document.id}`}
-                className="sl-btn sl-btn-outline"
-                style={{ fontSize: '0.82rem', padding: '0.35rem 0.75rem' }}
-                title="Editar documento en panel de Administrador"
-              >
-                <Edit3 size={14} />
-                <span>Editar</span>
-              </Link>
-            </div>
+            <AdminDocActions documentId={document.id} slug={document.slug} />
           </div>
 
           {/* Renderizado de Markdown */}
