@@ -5,9 +5,22 @@ import { db } from '../../lib/db/index';
 import * as schema from '../../lib/db/schema';
 import { desc } from 'drizzle-orm';
 
+import { auth0 } from '../../lib/auth0';
+import { isAuthorizedSuperAdmin } from '../../lib/services/users';
+
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
+  let isSuperAdmin = false;
+  try {
+    const session = await auth0.getSession();
+    if (session?.user?.email) {
+      isSuperAdmin = isAuthorizedSuperAdmin(session.user.email);
+    }
+  } catch (e) {
+    // Modo seguro si no hay sesión
+  }
+
   const documents = await db
     .select({
       id: schema.documents.id,
@@ -40,9 +53,11 @@ export default async function AdminDashboardPage() {
             <Upload size={16} />
             <span>Subir Archivo .md</span>
           </Link>
-          <Link href="/superadmin" className="sl-btn sl-btn-outline" style={{ borderColor: 'var(--sl-badge-danger)', color: '#ff7b72' }}>
-            <span>Gestión de Roles (Super Admin)</span>
-          </Link>
+          {isSuperAdmin && (
+            <Link href="/superadmin" className="sl-btn sl-btn-outline" style={{ borderColor: 'var(--sl-badge-danger)', color: '#ff7b72' }}>
+              <span>Gestión de Roles (Super Admin)</span>
+            </Link>
+          )}
         </div>
       </div>
 

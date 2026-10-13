@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Shield, ShieldCheck, User, ArrowLeft, RefreshCw, Lock } from 'lucide-react';
+import { Shield, ShieldAlert, User, ArrowLeft, RefreshCw, Lock } from 'lucide-react';
 
 const SUPER_ADMIN_EMAILS = [
   'nayeli.carrizales.diaz@gmail.com',
@@ -10,22 +10,84 @@ const SUPER_ADMIN_EMAILS = [
 ];
 
 export default function SuperAdminPage() {
+  const [authChecking, setAuthChecking] = useState(true);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [currentUserEmail, setCurrentUserEmail] = useState('');
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // 1. Validar identidad y privilegios antes de cualquier consulta de datos
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.isAuthenticated && data.isSuperAdmin) {
+          setIsSuperAdmin(true);
+          setCurrentUserEmail(data.user?.email || '');
+          loadUsers();
+        } else {
+          setIsSuperAdmin(false);
+        }
+      })
+      .catch(() => {
+        setIsSuperAdmin(false);
+      })
+      .finally(() => {
+        setAuthChecking(false);
+      });
+  }, []);
 
   const loadUsers = () => {
     setLoading(true);
     fetch('/api/users/roles')
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error('No autorizado');
+        return res.json();
+      })
       .then((data) => {
         if (Array.isArray(data)) setUsers(data);
+      })
+      .catch(() => {
+        setUsers([]);
       })
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => {
-    loadUsers();
-  }, []);
+  if (authChecking) {
+    return (
+      <div style={{ maxWidth: '600px', margin: '6rem auto', textAlign: 'center', color: 'var(--sl-color-text-muted)' }}>
+        <RefreshCw size={24} className="spin" style={{ animation: 'spin 1s linear infinite', marginBottom: '1rem' }} />
+        <p>Verificando credenciales de Super Administrador...</p>
+      </div>
+    );
+  }
+
+  // Si es un Admin normal u otro usuario, bloquear completamente el renderizado de la vista
+  if (!isSuperAdmin) {
+    return (
+      <div style={{ maxWidth: '640px', margin: '4.5rem auto', padding: '2.5rem', background: 'var(--sl-color-bg-sidebar)', border: '1px solid #da3633', borderRadius: '12px', textAlign: 'center' }}>
+        <div style={{ display: 'inline-flex', padding: '1rem', borderRadius: '50%', background: 'rgba(218, 54, 51, 0.15)', color: '#ff7b72', marginBottom: '1.25rem' }}>
+          <ShieldAlert size={44} />
+        </div>
+        <h2 style={{ fontSize: '1.6rem', color: 'var(--sl-color-text-title)', marginBottom: '0.85rem' }}>
+          Acceso Restringido (403 Prohibido)
+        </h2>
+        <p style={{ color: 'var(--sl-color-text-muted)', fontSize: '0.98rem', lineHeight: '1.6', marginBottom: '1.75rem' }}>
+          Un perfil de <strong>Administrador regular</strong> no tiene autorización para acceder a las vistas ni funciones del panel de <strong>Super Administrador</strong>.
+          Esta área está estrictamente reservada para el control, asignación y revocación de roles del sistema.
+        </p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+          <Link href="/admin" className="sl-btn sl-btn-primary" style={{ padding: '0.6rem 1.4rem' }}>
+            <ArrowLeft size={16} />
+            <span>Volver al Panel de Administrador</span>
+          </Link>
+          <Link href="/docs/introduccion/que-es-sdd" className="sl-btn sl-btn-outline" style={{ padding: '0.6rem 1.4rem' }}>
+            <span>Ir a Documentación</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   const handleToggleRole = async (userId, roleId, currentlyHasRole) => {
     try {

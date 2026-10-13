@@ -34,9 +34,23 @@ export async function proxy(request) {
   if (pathname.startsWith("/admin") || pathname.startsWith("/superadmin")) {
     try {
       const session = await auth0.getSession();
-      if (!session) {
+      if (!session || !session.user) {
         const { origin } = new URL(request.url);
         return NextResponse.redirect(`${origin}/login`);
+      }
+
+      // Restricción estricta: un admin normal NO puede entrar a /superadmin
+      if (pathname.startsWith("/superadmin")) {
+        const userEmail = (session.user.email || "").toLowerCase().trim();
+        const superAdmins = [
+          "nayeli.carrizales.diaz@gmail.com",
+          "joshuapadillags@gmail.com"
+        ];
+        if (!superAdmins.includes(userEmail)) {
+          const { origin } = new URL(request.url);
+          // Redirigir al panel de administración regular
+          return NextResponse.redirect(`${origin}/admin`);
+        }
       }
     } catch (e) {
       const { origin } = new URL(request.url);

@@ -12,6 +12,7 @@ export default function Header() {
     isAuthenticated: false,
     user: null,
     roles: [],
+    isSuperAdmin: false,
   });
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function Header() {
           isAuthenticated: !!data.isAuthenticated,
           user: data.user || null,
           roles: Array.isArray(data.roles) ? data.roles : [],
+          isSuperAdmin: !!data.isSuperAdmin,
         });
       })
       .catch(() => {
@@ -31,12 +33,13 @@ export default function Header() {
           isAuthenticated: false,
           user: null,
           roles: [],
+          isSuperAdmin: false,
         });
       });
   }, [pathname]);
 
-  const isAdmin = authState.roles.includes('ADMIN') || authState.roles.includes('SUPER_ADMIN');
-  const isSuperAdmin = authState.roles.includes('SUPER_ADMIN');
+  const isAdmin = authState.roles.includes('ADMIN') || authState.isSuperAdmin;
+  const isSuperAdmin = authState.isSuperAdmin;
 
   return (
     <header className="sl-header">
