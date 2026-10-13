@@ -2,7 +2,12 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Shield, ShieldCheck, User, Plus, Trash2, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Shield, ShieldCheck, User, ArrowLeft, RefreshCw, Lock } from 'lucide-react';
+
+const SUPER_ADMIN_EMAILS = [
+  'nayeli.carrizales.diaz@gmail.com',
+  'joshuapadillags@gmail.com'
+];
 
 export default function SuperAdminPage() {
   const [users, setUsers] = useState([]);
@@ -31,10 +36,11 @@ export default function SuperAdminPage() {
         body: JSON.stringify({ userId, roleId }),
       });
 
+      const data = await res.json();
       if (res.ok) {
         loadUsers();
       } else {
-        alert('Error al actualizar rol');
+        alert(data.error || 'Error al actualizar rol');
       }
     } catch (err) {
       alert('Error de conexión');
@@ -50,7 +56,7 @@ export default function SuperAdminPage() {
             <span>Panel de Super Administrador: Control de Roles</span>
           </h1>
           <p style={{ color: 'var(--sl-color-text-muted)', fontSize: '0.95rem', marginTop: '0.35rem' }}>
-            Gestiona permisos de usuarios en Neon PostgreSQL (Vista Pública, Administrador y Super Administrador).
+            Super Administradores únicos autorizados: <strong style={{ color: '#ff7b72' }}>{SUPER_ADMIN_EMAILS.join(', ')}</strong>
           </p>
         </div>
 
@@ -86,14 +92,14 @@ export default function SuperAdminPage() {
             ) : users.length === 0 ? (
               <tr>
                 <td colSpan={4} style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--sl-color-text-muted)' }}>
-                  <p style={{ marginBottom: '0.5rem' }}>Aún no hay usuarios sincronizados en la tabla de Neon.</p>
-                  <p style={{ fontSize: '0.85rem' }}>Los usuarios se crean automáticamente al iniciar sesión por primera vez con Auth0.</p>
+                  <p style={{ marginBottom: '0.5rem' }}>No hay usuarios en la tabla de Neon.</p>
                 </td>
               </tr>
             ) : (
               users.map((u) => {
                 const isAdmin = u.roles?.includes('ADMIN');
                 const isSuperAdmin = u.roles?.includes('SUPER_ADMIN');
+                const isDesignatedSuperAdmin = SUPER_ADMIN_EMAILS.includes(u.email?.toLowerCase().trim());
 
                 return (
                   <tr key={u.id} style={{ borderBottom: '1px solid var(--sl-color-border)' }}>
@@ -105,6 +111,11 @@ export default function SuperAdminPage() {
                     </td>
                     <td style={{ padding: '1rem 1.25rem', color: 'var(--sl-color-text-muted)', fontSize: '0.88rem' }}>
                       {u.email}
+                      {isDesignatedSuperAdmin && (
+                        <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: '#ff7b72', fontWeight: 600 }}>
+                          (Super Admin Oficial)
+                        </span>
+                      )}
                     </td>
                     <td style={{ padding: '1rem 1.25rem' }}>
                       <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
@@ -136,19 +147,36 @@ export default function SuperAdminPage() {
                           {isAdmin ? 'Quitar Admin' : '+ Dar Admin'}
                         </button>
 
-                        {/* Toggle SUPER_ADMIN */}
-                        <button
-                          onClick={() => handleToggleRole(u.id, 'SUPER_ADMIN', isSuperAdmin)}
-                          className="sl-btn sl-btn-outline"
-                          style={{
-                            fontSize: '0.78rem',
-                            padding: '0.25rem 0.6rem',
-                            borderColor: isSuperAdmin ? 'var(--sl-badge-danger)' : 'var(--sl-color-border)',
-                            color: isSuperAdmin ? '#ff7b72' : 'var(--sl-color-text-muted)',
-                          }}
-                        >
-                          {isSuperAdmin ? 'Quitar Super Admin' : '+ Dar Super Admin'}
-                        </button>
+                        {/* Toggle SUPER_ADMIN (Restringido estrictamente a los 2 correos) */}
+                        {isDesignatedSuperAdmin ? (
+                          <button
+                            onClick={() => handleToggleRole(u.id, 'SUPER_ADMIN', isSuperAdmin)}
+                            className="sl-btn sl-btn-outline"
+                            style={{
+                              fontSize: '0.78rem',
+                              padding: '0.25rem 0.6rem',
+                              borderColor: 'var(--sl-badge-danger)',
+                              color: '#ff7b72',
+                            }}
+                          >
+                            {isSuperAdmin ? 'Super Admin Activo' : '+ Activar Super Admin'}
+                          </button>
+                        ) : (
+                          <span
+                            style={{
+                              fontSize: '0.75rem',
+                              color: 'var(--sl-color-text-muted)',
+                              padding: '0.25rem 0.5rem',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.25rem',
+                            }}
+                            title="Solo los correos designados pueden ser Super Admin"
+                          >
+                            <Lock size={12} />
+                            <span>No autorizable</span>
+                          </span>
+                        )}
                       </div>
                     </td>
                   </tr>

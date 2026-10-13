@@ -415,6 +415,42 @@ Utilice esta plantilla al iniciar cualquier iniciativa de desarrollo de software
     }
   }
 
+  // 4. Super Administradores Oficiales
+  const superAdminUsers = [
+    {
+      email: "nayeli.carrizales.diaz@gmail.com",
+      name: "Nayeli Carrizales",
+      auth0Id: "auth0|nayeli_carrizales"
+    },
+    {
+      email: "joshuapadillags@gmail.com",
+      name: "Joshua Padilla",
+      auth0Id: "auth0|joshua_padilla"
+    }
+  ];
+
+  for (const adminUser of superAdminUsers) {
+    let userRecord;
+    const existingUser = await db.select().from(schema.users).where(eq(schema.users.email, adminUser.email)).limit(1);
+    if (existingUser.length === 0) {
+      const [inserted] = await db.insert(schema.users).values(adminUser).returning();
+      userRecord = inserted;
+      console.log(`👤 Super Admin registrado: ${adminUser.email}`);
+    } else {
+      userRecord = existingUser[0];
+      console.log(`👤 Super Admin ya existente: ${adminUser.email}`);
+    }
+
+    // Asegurar roles USER, ADMIN y SUPER_ADMIN
+    for (const r of ["USER", "ADMIN", "SUPER_ADMIN"]) {
+      await db.insert(schema.userRoles).values({
+        userId: userRecord.id,
+        roleId: r
+      }).onConflictDoNothing();
+    }
+  }
+  console.log("👑 Super Admins asignados exitosamente.");
+
   console.log("🎉 Seeding finalizado con éxito en Neon PostgreSQL!");
 }
 

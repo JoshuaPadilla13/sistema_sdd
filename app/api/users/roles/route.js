@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAllUsersWithRoles, assignUserRole, removeUserRole } from "../../../../lib/services/users.js";
+import { getAllUsersWithRoles, assignUserRole, removeUserRole, isAuthorizedSuperAdmin } from "../../../../lib/services/users.js";
 
 export async function GET() {
   try {
@@ -16,10 +16,11 @@ export async function POST(request) {
     if (!userId || !roleId) {
       return NextResponse.json({ error: "userId y roleId son requeridos" }, { status: 400 });
     }
+
     await assignUserRole(userId, roleId);
     return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
 
@@ -29,6 +30,7 @@ export async function DELETE(request) {
     if (!userId || !roleId) {
       return NextResponse.json({ error: "userId y roleId son requeridos" }, { status: 400 });
     }
+
     await removeUserRole(userId, roleId);
     return NextResponse.json({ success: true });
   } catch (error) {
