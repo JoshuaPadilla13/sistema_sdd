@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { importMarkdownFile } from "../../../../lib/services/docs.js";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request) {
   try {
     const formData = await request.formData();

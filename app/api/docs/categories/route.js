@@ -3,6 +3,8 @@ import { db } from "../../../../lib/db/index";
 import * as schema from "../../../../lib/db/schema";
 import { asc } from "drizzle-orm";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const categories = await db
