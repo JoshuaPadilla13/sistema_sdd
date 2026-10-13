@@ -35,10 +35,13 @@ export default async function AdminDashboardPage() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           <Link href="/admin/upload" className="sl-btn sl-btn-primary">
             <Upload size={16} />
             <span>Subir Archivo .md</span>
+          </Link>
+          <Link href="/superadmin" className="sl-btn sl-btn-outline" style={{ borderColor: 'var(--sl-badge-danger)', color: '#ff7b72' }}>
+            <span>Gestión de Roles (Super Admin)</span>
           </Link>
         </div>
       </div>
