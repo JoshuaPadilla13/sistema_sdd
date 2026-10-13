@@ -117,14 +117,14 @@ export default function Header() {
                 </a>
               </div>
             ) : (
-              <a
-                href="/auth/login"
+              <Link
+                href="/login"
                 className="sl-btn sl-btn-outline"
                 style={{ fontSize: '0.82rem', padding: '0.3rem 0.75rem' }}
               >
                 <LogIn size={14} />
                 <span>Iniciar Sesión</span>
-              </a>
+              </Link>
             )}
           </div>
         )}
