@@ -16,7 +16,9 @@ import {
   Plus, 
   Layers, 
   FileText, 
-  Eye 
+  Eye,
+  Indent,
+  Outdent
 } from 'lucide-react';
 import MarkdownRenderer from '../starlight/MarkdownRenderer';
 import { blocksToMarkdown, markdownToBlocks } from '../../lib/blocks';
@@ -113,6 +115,50 @@ export default function BlockEditor({
     updated[index + 1] = updated[index];
     updated[index] = temp;
     updateBlocksState(updated);
+  };
+
+  // Operaciones de Lista con Sangría / Subniveles
+  const addListItem = (blockId) => {
+    const block = blocks.find((b) => b.id === blockId);
+    if (!block) return;
+    const items = [...(block.items || []), 'Nuevo elemento'];
+    modifyBlock(blockId, 'items', items);
+  };
+
+  const updateListItem = (blockId, itemIdx, newText) => {
+    const block = blocks.find((b) => b.id === blockId);
+    if (!block) return;
+    const current = block.items?.[itemIdx] || '';
+    const match = current.match(/^(\s*)/);
+    const indent = match ? match[1] : '';
+    const items = [...(block.items || [])];
+    items[itemIdx] = `${indent}${newText.replace(/^\s+/, '')}`;
+    modifyBlock(blockId, 'items', items);
+  };
+
+  const indentListItem = (blockId, itemIdx) => {
+    const block = blocks.find((b) => b.id === blockId);
+    if (!block) return;
+    const items = [...(block.items || [])];
+    // Aumentar sangría agregando 2 espacios al inicio
+    items[itemIdx] = `  ${items[itemIdx] || ''}`;
+    modifyBlock(blockId, 'items', items);
+  };
+
+  const outdentListItem = (blockId, itemIdx) => {
+    const block = blocks.find((b) => b.id === blockId);
+    if (!block) return;
+    const items = [...(block.items || [])];
+    // Reducir sangría removiendo hasta 2 espacios iniciales
+    items[itemIdx] = (items[itemIdx] || '').replace(/^ {1,2}/, '');
+    modifyBlock(blockId, 'items', items);
+  };
+
+  const removeListItem = (blockId, itemIdx) => {
+    const block = blocks.find((b) => b.id === blockId);
+    if (!block) return;
+    const items = (block.items || []).filter((_, i) => i !== itemIdx);
+    modifyBlock(blockId, 'items', items);
   };
 
   return (
@@ -434,26 +480,132 @@ export default function BlockEditor({
                       )}
 
                       {block.type === 'list' && (
-                        <div>
-                          <p style={{ fontSize: '0.8rem', color: 'var(--sl-color-text-muted)', marginBottom: '0.5rem' }}>
-                            Elementos de la lista (un elemento por línea):
-                          </p>
-                          <textarea
-                            value={(block.items || []).join('\n')}
-                            onChange={(e) => modifyBlock(block.id, 'items', e.target.value.split('\n'))}
-                            rows={4}
-                            placeholder="Elemento 1&#10;Elemento 2&#10;Elemento 3"
-                            style={{
-                              width: '100%',
-                              background: 'var(--sl-color-bg)',
-                              color: 'var(--sl-color-text)',
-                              border: '1px solid var(--sl-color-border)',
-                              borderRadius: '6px',
-                              padding: '0.6rem',
-                              fontSize: '0.88rem',
-                              resize: 'vertical',
-                            }}
-                          />
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                            <p style={{ fontSize: '0.8rem', color: 'var(--sl-color-text-muted)' }}>
+                              Elementos de la lista (utiliza los botones de sangría ⇥ / ⇤ para crear subniveles):
+                            </p>
+                          </div>
+
+                          {/* LISTADO DE ELEMENTOS INTERACTIVOS CON SANGRÍA */}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                            {(!block.items || block.items.length === 0) ? (
+                              <p style={{ fontSize: '0.82rem', color: 'var(--sl-color-text-muted)', fontStyle: 'italic', padding: '0.5rem 0' }}>
+                                La lista está vacía. Haz clic en "Añadir elemento" para comenzar.
+                              </p>
+                            ) : (
+                              block.items.map((it, itemIdx) => {
+                                const itemStr = typeof it === 'string' ? it : String(it);
+                                const match = itemStr.match(/^(\s*)(.*)$/);
+                                const indentSpaces = match ? match[1].length : 0;
+                                const text = match ? match[2] : itemStr;
+                                const level = Math.floor(indentSpaces / 2) + 1;
+
+                                return (
+                                  <div
+                                    key={itemIdx}
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '0.45rem',
+                                      paddingLeft: `${Math.min(indentSpaces * 14, 120)}px`,
+                                      transition: 'padding-left 0.15s ease',
+                                    }}
+                                  >
+                                    <span 
+                                      style={{ 
+                                        fontSize: '0.75rem', 
+                                        color: level > 1 ? 'var(--sl-color-accent)' : 'var(--sl-color-text-muted)',
+                                        minWidth: '22px',
+                                        fontWeight: 600,
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '2px',
+                                      }}
+                                      title={`Nivel ${level} (${indentSpaces} espacios de sangría)`}
+                                    >
+                                      {level > 1 ? '↳ •' : '•'}
+                                    </span>
+
+                                    <input
+                                      type="text"
+                                      value={text}
+                                      onChange={(e) => updateListItem(block.id, itemIdx, e.target.value)}
+                                      placeholder={`Elemento de nivel ${level}...`}
+                                      style={{
+                                        flex: 1,
+                                        background: 'var(--sl-color-bg)',
+                                        color: 'var(--sl-color-text)',
+                                        border: '1px solid var(--sl-color-border)',
+                                        borderRadius: '5px',
+                                        padding: '0.35rem 0.6rem',
+                                        fontSize: '0.86rem',
+                                      }}
+                                    />
+
+                                    {/* BOTÓN REDUCIR SANGRÍA (OUTDENT) */}
+                                    <button
+                                      type="button"
+                                      onClick={() => outdentListItem(block.id, itemIdx)}
+                                      disabled={indentSpaces === 0}
+                                      className="sl-btn sl-btn-outline"
+                                      style={{
+                                        padding: '0.25rem 0.45rem',
+                                        fontSize: '0.75rem',
+                                        opacity: indentSpaces === 0 ? 0.3 : 1,
+                                        cursor: indentSpaces === 0 ? 'not-allowed' : 'pointer',
+                                      }}
+                                      title="Reducir sangría / Subir nivel (-2 espacios)"
+                                    >
+                                      <Outdent size={13} />
+                                    </button>
+
+                                    {/* BOTÓN AUMENTAR SANGRÍA (INDENT) */}
+                                    <button
+                                      type="button"
+                                      onClick={() => indentListItem(block.id, itemIdx)}
+                                      className="sl-btn sl-btn-outline"
+                                      style={{
+                                        padding: '0.25rem 0.45rem',
+                                        fontSize: '0.75rem',
+                                      }}
+                                      title="Aumentar sangría / Crear subelemento (+2 espacios)"
+                                    >
+                                      <Indent size={13} />
+                                    </button>
+
+                                    {/* BOTÓN ELIMINAR ELEMENTO */}
+                                    <button
+                                      type="button"
+                                      onClick={() => removeListItem(block.id, itemIdx)}
+                                      className="sl-btn sl-btn-outline"
+                                      style={{
+                                        padding: '0.25rem 0.45rem',
+                                        fontSize: '0.75rem',
+                                        borderColor: 'rgba(248, 81, 73, 0.3)',
+                                        color: '#ff7b72',
+                                      }}
+                                      title="Eliminar este elemento"
+                                    >
+                                      <Trash2 size={13} />
+                                    </button>
+                                  </div>
+                                );
+                              })
+                            )}
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.25rem' }}>
+                            <button
+                              type="button"
+                              onClick={() => addListItem(block.id)}
+                              className="sl-btn sl-btn-outline"
+                              style={{ fontSize: '0.8rem', padding: '0.3rem 0.7rem', color: 'var(--sl-color-accent)' }}
+                            >
+                              <Plus size={13} />
+                              <span>Añadir elemento a la lista</span>
+                            </button>
+                          </div>
                         </div>
                       )}
 
