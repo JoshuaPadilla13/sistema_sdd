@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Download, Edit3, ArrowLeft, Calendar, User } from 'lucide-react';
 import Sidebar from '../../../components/starlight/Sidebar';
-import TableOfContents from '../../../components/starlight/TableOfContents';
+import TableOfContents, { MobileTableOfContents } from '../../../components/starlight/TableOfContents';
 import MarkdownRenderer from '../../../components/starlight/MarkdownRenderer';
 import AdminDocActions from '../../../components/starlight/AdminDocActions';
 import { getNavigationTree, getDocumentBySlug } from '../../../lib/services/docs';
@@ -49,11 +49,14 @@ export default async function DocPage({ params }) {
             <AdminDocActions documentId={document.id} slug={document.slug} />
           </div>
 
+          {/* Menú colapsable 'En esta página' en dispositivos móviles y tablets */}
+          <MobileTableOfContents headings={headings} />
+
           {/* Renderizado de Markdown */}
           <MarkdownRenderer content={document.rawMarkdown} />
         </article>
 
-        {/* Panel lateral "En esta página" */}
+        {/* Panel lateral 'En esta página' en Desktop */}
         <TableOfContents headings={headings} />
       </div>
     </div>

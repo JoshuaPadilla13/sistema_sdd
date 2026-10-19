@@ -151,7 +151,7 @@ export default function BlockEditor({
         </button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: showPreview ? '1fr 1fr' : '1fr', gap: '1.5rem', minHeight: '650px' }}>
+      <div className={`sl-editor-grid ${showPreview ? 'with-preview' : 'no-preview'}`} style={{ gap: '1.5rem', minHeight: '650px' }}>
         {/* ÁREA DE EDICIÓN */}
         <div>
           {activeTab === 'blocks' ? (

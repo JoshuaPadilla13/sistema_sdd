@@ -27,15 +27,16 @@ export default function LoginPage() {
     <div style={{
       minHeight: 'calc(100vh - 64px)',
       display: 'flex',
+      flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '2rem 1rem',
+      padding: '5rem 1rem 2.5rem',
       background: 'radial-gradient(circle at 35% 25%, #42163b 0%, transparent 45%), radial-gradient(circle at 75% 35%, #231644 0%, transparent 50%), radial-gradient(circle at 50% 85%, #14213d 0%, #090a14 75%)',
       position: 'relative',
       overflow: 'hidden',
     }}>
       {/* Botón flotante para regresar al inicio */}
-      <div style={{ position: 'absolute', top: '1.5rem', left: '1.5rem' }}>
+      <div style={{ position: 'absolute', top: '1.25rem', left: '1.25rem', zIndex: 10 }}>
         <Link 
           href="/" 
           className="sl-btn sl-btn-outline"
@@ -59,8 +60,8 @@ export default function LoginPage() {
         backdropFilter: 'blur(30px)',
         WebkitBackdropFilter: 'blur(30px)',
         border: '1px solid rgba(255, 255, 255, 0.12)',
-        borderRadius: '34px',
-        padding: '3rem 2.25rem 2.5rem',
+        borderRadius: '32px',
+        padding: '2.5rem 1.75rem 2.25rem',
         boxShadow: '0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.18)',
         display: 'flex',
         flexDirection: 'column',
