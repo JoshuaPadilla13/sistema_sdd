@@ -44,6 +44,27 @@ export default function Sidebar({ tree = [] }) {
     setMobileOpen(false);
   }, [pathname]);
 
+  // Sincronizar clase en el body y layout para centrar el contenido al colapsar el sidebar en PC
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      const layout = document.querySelector('.sl-layout');
+      if (desktopCollapsed) {
+        document.body.classList.add('sl-sidebar-collapsed');
+        if (layout) layout.classList.add('sidebar-collapsed');
+      } else {
+        document.body.classList.remove('sl-sidebar-collapsed');
+        if (layout) layout.classList.remove('sidebar-collapsed');
+      }
+    }
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.body.classList.remove('sl-sidebar-collapsed');
+        const layout = document.querySelector('.sl-layout');
+        if (layout) layout.classList.remove('sidebar-collapsed');
+      }
+    };
+  }, [desktopCollapsed]);
+
   // Alternar el colapso de una categoría específica
   const toggleCategory = (catId) => {
     setOpenCategories((prev) => ({
