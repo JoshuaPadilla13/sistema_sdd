@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getDocumentById, updateDocumentBlocks } from "../../../../lib/services/docs";
+import { getDocumentById, updateDocumentBlocks, deleteDocument } from "../../../../lib/services/docs";
 
 export const dynamic = "force-dynamic";
 
@@ -40,6 +40,22 @@ export async function PUT(request, { params }) {
     return NextResponse.json(result);
   } catch (error) {
     console.error("Error al actualizar documento con bloques:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request, { params }) {
+  try {
+    const { id } = await params;
+    const existing = await getDocumentById(id);
+    if (!existing) {
+      return NextResponse.json({ error: "Documento no encontrado" }, { status: 404 });
+    }
+
+    await deleteDocument(id);
+    return NextResponse.json({ success: true, message: "Documento eliminado correctamente" });
+  } catch (error) {
+    console.error("Error al eliminar documento:", error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

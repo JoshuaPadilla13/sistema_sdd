@@ -1,12 +1,13 @@
 import React from 'react';
 import Link from 'next/link';
-import { Upload, FileText, Download, Edit, Eye, PlusCircle } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import { db } from '../../lib/db/index';
 import * as schema from '../../lib/db/schema';
-import { desc } from 'drizzle-orm';
+import { asc, desc } from 'drizzle-orm';
 
 import { auth0 } from '../../lib/auth0';
 import { isAuthorizedSuperAdmin } from '../../lib/services/users';
+import AdminDocumentsTable from '../../components/admin/AdminDocumentsTable';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,14 +28,14 @@ export default async function AdminDashboardPage() {
       title: schema.documents.title,
       slug: schema.documents.slug,
       categoryId: schema.documents.categoryId,
+      orderIndex: schema.documents.orderIndex,
       isPublished: schema.documents.isPublished,
       updatedAt: schema.documents.updatedAt,
     })
     .from(schema.documents)
-    .orderBy(desc(schema.documents.updatedAt));
+    .orderBy(asc(schema.documents.orderIndex), desc(schema.documents.updatedAt));
 
-  const categories = await db.select().from(schema.categories);
-  const categoryMap = new Map(categories.map((c) => [c.id, c.title]));
+  const categories = await db.select().from(schema.categories).orderBy(asc(schema.categories.orderIndex));
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
@@ -44,7 +45,7 @@ export default async function AdminDashboardPage() {
             🛠️ Panel de Administración de Contenido
           </h1>
           <p style={{ color: 'var(--sl-color-text-muted)', fontSize: '0.95rem' }}>
-            Gestiona la documentación de SDD, sube archivos Markdown (.md) y descarga especificaciones.
+            Gestiona la documentación de SDD, reorganiza el orden de los archivos, sube nuevos Markdown (.md) o elimina archivos.
           </p>
         </div>
 
@@ -61,70 +62,8 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* TABLA DE DOCUMENTOS */}
-      <div style={{ background: 'var(--sl-color-bg-sidebar)', border: '1px solid var(--sl-color-border)', borderRadius: '10px', overflowX: 'auto' }}>
-        <table style={{ width: '100%', minWidth: '650px', borderCollapse: 'collapse', textAlign: 'left' }}>
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--sl-color-border)', background: 'rgba(255, 255, 255, 0.03)' }}>
-              <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Título</th>
-              <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Fase / Categoría</th>
-              <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Slug</th>
-              <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Estado</th>
-              <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem', textAlign: 'right' }}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {documents.map((doc) => {
-              const catTitle = doc.categoryId ? categoryMap.get(doc.categoryId) : 'Sin categoría';
-              return (
-                <tr key={doc.id} style={{ borderBottom: '1px solid var(--sl-color-border)' }}>
-                  <td style={{ padding: '1rem 1.25rem', fontWeight: 600, color: 'var(--sl-color-text-title)' }}>
-                    {doc.title}
-                  </td>
-                  <td style={{ padding: '1rem 1.25rem', color: 'var(--sl-color-text-muted)', fontSize: '0.88rem' }}>
-                    {catTitle}
-                  </td>
-                  <td style={{ padding: '1rem 1.25rem', color: 'var(--sl-color-accent)', fontSize: '0.82rem', fontFamily: 'monospace' }}>
-                    /{doc.slug}
-                  </td>
-                  <td style={{ padding: '1rem 1.25rem' }}>
-                    <span className="sl-badge success">Publicado</span>
-                  </td>
-                  <td style={{ padding: '1rem 1.25rem', textAlign: 'right' }}>
-                    <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
-                      <Link
-                        href={`/docs/${doc.slug}`}
-                        className="sl-btn sl-btn-outline"
-                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}
-                        title="Ver en vista pública"
-                      >
-                        <Eye size={14} />
-                      </Link>
-                      <a
-                        href={`/api/docs/download/${doc.slug}`}
-                        download
-                        className="sl-btn sl-btn-outline"
-                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}
-                        title="Descargar archivo Markdown (.md)"
-                      >
-                        <Download size={14} />
-                      </a>
-                      <Link
-                        href={`/admin/documents/${doc.id}`}
-                        className="sl-btn sl-btn-outline"
-                        style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}
-                        title="Editar documento"
-                      >
-                        <Edit size={14} />
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      {/* TABLA INTERACTIVA DE DOCUMENTOS (REORDENAMIENTO Y ELIMINACIÓN) */}
+      <AdminDocumentsTable initialDocuments={documents} categories={categories} />
     </div>
   );
 }
