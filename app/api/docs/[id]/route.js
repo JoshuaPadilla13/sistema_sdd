@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth0 } from "../../../../lib/auth0.js";
 import { getDocumentById, updateDocumentBlocks, deleteDocument } from "../../../../lib/services/docs";
 
 export const dynamic = "force-dynamic";
@@ -29,12 +30,21 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ error: "Documento no encontrado" }, { status: 404 });
     }
 
+    let userId = null;
+    try {
+      const session = await auth0.getSession();
+      userId = session?.user?.sub || session?.user?.email || null;
+    } catch (e) {
+      // Si la sesión no está disponible, el sistema registrará 'SYSTEM_OR_UNTRACKED'
+    }
+
     const result = await updateDocumentBlocks({
       id,
       title: title || existing.title,
       slug: slug || existing.slug,
       blocks,
       rawMarkdown,
+      userId,
     });
 
     return NextResponse.json(result);
@@ -52,7 +62,13 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: "Documento no encontrado" }, { status: 404 });
     }
 
-    await deleteDocument(id);
+    let userId = null;
+    try {
+      const session = await auth0.getSession();
+      userId = session?.user?.sub || session?.user?.email || null;
+    } catch (e) {}
+
+    await deleteDocument(id, userId);
     return NextResponse.json({ success: true, message: "Documento eliminado correctamente" });
   } catch (error) {
     console.error("Error al eliminar documento:", error);

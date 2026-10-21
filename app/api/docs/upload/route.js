@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth0 } from "../../../../lib/auth0.js";
 import { importMarkdownFile } from "../../../../lib/services/docs.js";
 
 export const dynamic = "force-dynamic";
@@ -17,12 +18,18 @@ export async function POST(request) {
       return NextResponse.json({ error: "El archivo debe tener extensión .md" }, { status: 400 });
     }
 
+    let userId = null;
+    try {
+      const session = await auth0.getSession();
+      userId = session?.user?.sub || session?.user?.email || null;
+    } catch (e) {}
+
     const rawContent = await file.text();
     const result = await importMarkdownFile({
       filename: file.name,
       rawContent,
       categoryId: categoryId ? categoryId : null,
-      userId: null,
+      userId,
     });
 
     return NextResponse.json({

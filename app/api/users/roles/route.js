@@ -10,17 +10,18 @@ export const dynamic = "force-dynamic";
 async function verifySuperAdminSession() {
   try {
     const session = await auth0.getSession();
-    if (!session || !session.user) return false;
-    return isAuthorizedSuperAdmin(session.user.email);
+    if (!session || !session.user) return null;
+    const isSuper = isAuthorizedSuperAdmin(session.user.email);
+    return isSuper ? session.user : null;
   } catch (error) {
-    return false;
+    return null;
   }
 }
 
 export async function GET() {
   try {
-    const isSuperAdmin = await verifySuperAdminSession();
-    if (!isSuperAdmin) {
+    const superAdminUser = await verifySuperAdminSession();
+    if (!superAdminUser) {
       return NextResponse.json(
         { error: "Acceso denegado: El control de roles es de acceso exclusivo para Super Administradores." },
         { status: 403 }
@@ -36,8 +37,8 @@ export async function GET() {
 
 export async function POST(request) {
   try {
-    const isSuperAdmin = await verifySuperAdminSession();
-    if (!isSuperAdmin) {
+    const superAdminUser = await verifySuperAdminSession();
+    if (!superAdminUser) {
       return NextResponse.json(
         { error: "Acceso denegado: Solo un Super Administrador puede asignar roles." },
         { status: 403 }
@@ -49,7 +50,8 @@ export async function POST(request) {
       return NextResponse.json({ error: "userId y roleId son requeridos" }, { status: 400 });
     }
 
-    await assignUserRole(userId, roleId);
+    const assignedById = superAdminUser.sub || superAdminUser.email;
+    await assignUserRole(userId, roleId, assignedById);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
@@ -58,8 +60,8 @@ export async function POST(request) {
 
 export async function DELETE(request) {
   try {
-    const isSuperAdmin = await verifySuperAdminSession();
-    if (!isSuperAdmin) {
+    const superAdminUser = await verifySuperAdminSession();
+    if (!superAdminUser) {
       return NextResponse.json(
         { error: "Acceso denegado: Solo un Super Administrador puede remover roles." },
         { status: 403 }
@@ -71,7 +73,8 @@ export async function DELETE(request) {
       return NextResponse.json({ error: "userId y roleId son requeridos" }, { status: 400 });
     }
 
-    await removeUserRole(userId, roleId);
+    const removedById = superAdminUser.sub || superAdminUser.email;
+    await removeUserRole(userId, roleId, removedById);
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

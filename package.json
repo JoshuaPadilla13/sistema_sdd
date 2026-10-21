@@ -16,7 +16,9 @@
     "cypress:open": "cypress open --browser chrome",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "node scripts/seed.mjs"
+    "db:seed": "node scripts/seed.mjs",
+    "db:audit": "node scripts/migrate-audit.mjs",
+    "db:audit:test": "node scripts/test-audit.mjs"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.16.1",
