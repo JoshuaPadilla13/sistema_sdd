@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Heading1, 
   Heading2, 
@@ -26,9 +26,12 @@ import { blocksToMarkdown, markdownToBlocks } from '../../lib/blocks';
 export default function BlockEditor({ 
   initialBlocks = [], 
   initialMarkdown = '', 
+  title: initialTitle = '',
+  onTitleChange,
   onChange 
 }) {
   const [activeTab, setActiveTab] = useState('blocks'); // 'blocks' | 'markdown'
+  const [docTitle, setDocTitle] = useState(initialTitle);
   const [blocks, setBlocks] = useState(
     initialBlocks.length > 0 ? initialBlocks : markdownToBlocks(initialMarkdown)
   );
@@ -37,6 +40,20 @@ export default function BlockEditor({
   );
   const [showPreview, setShowPreview] = useState(true);
 
+  // Sincronizar título si la prop externa cambia
+  useEffect(() => {
+    if (initialTitle !== undefined) {
+      setDocTitle(initialTitle);
+    }
+  }, [initialTitle]);
+
+  const handleTitleChange = (e) => {
+    const newTitle = e.target.value;
+    setDocTitle(newTitle);
+    if (onTitleChange) onTitleChange(newTitle);
+    if (onChange) onChange({ title: newTitle, blocks, rawMarkdown });
+  };
+
   const genId = () => 'blk-' + Math.random().toString(36).substring(2, 9);
 
   // Sincronizar hacia arriba cuando cambian los bloques
@@ -44,7 +61,7 @@ export default function BlockEditor({
     setBlocks(newBlocks);
     const md = blocksToMarkdown(newBlocks);
     setRawMarkdown(md);
-    if (onChange) onChange({ blocks: newBlocks, rawMarkdown: md });
+    if (onChange) onChange({ title: docTitle, blocks: newBlocks, rawMarkdown: md });
   };
 
   // Sincronizar hacia arriba cuando cambia el markdown crudo
@@ -52,7 +69,7 @@ export default function BlockEditor({
     setRawMarkdown(newMd);
     const parsedBlocks = markdownToBlocks(newMd);
     setBlocks(parsedBlocks);
-    if (onChange) onChange({ blocks: parsedBlocks, rawMarkdown: newMd });
+    if (onChange) onChange({ title: docTitle, blocks: parsedBlocks, rawMarkdown: newMd });
   };
 
   // Añadir un nuevo bloque
@@ -200,6 +217,47 @@ export default function BlockEditor({
       <div className={`sl-editor-grid ${showPreview ? 'with-preview' : 'no-preview'}`} style={{ gap: '1.5rem', minHeight: '650px' }}>
         {/* ÁREA DE EDICIÓN */}
         <div>
+          {/* CAMPO EDITABLE DEL TÍTULO DEL ARCHIVO */}
+          <div style={{
+            background: 'var(--sl-color-bg-sidebar)',
+            border: '1px solid var(--sl-color-border)',
+            borderRadius: '8px',
+            padding: '0.85rem 1.15rem',
+            marginBottom: '1.25rem',
+          }}>
+            <label style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.45rem', 
+              fontSize: '0.78rem', 
+              fontWeight: 700, 
+              color: 'var(--sl-color-accent)', 
+              textTransform: 'uppercase', 
+              letterSpacing: '0.04em',
+              marginBottom: '0.4rem' 
+            }}>
+              <FileText size={14} />
+              <span>Título del Archivo / Documento</span>
+            </label>
+            <input
+              type="text"
+              value={docTitle}
+              onChange={handleTitleChange}
+              placeholder="Escribe el título del archivo o documento..."
+              style={{
+                width: '100%',
+                background: 'var(--sl-color-bg)',
+                color: 'var(--sl-color-text-title)',
+                border: '1px solid var(--sl-color-border)',
+                borderRadius: '6px',
+                padding: '0.6rem 0.85rem',
+                fontSize: '1.15rem',
+                fontWeight: 700,
+                outline: 'none',
+              }}
+            />
+          </div>
+
           {activeTab === 'blocks' ? (
             <div>
               {/* TOOLBAR PARA AÑADIR BLOQUES */}
@@ -688,6 +746,11 @@ export default function BlockEditor({
             <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--sl-color-accent)', textTransform: 'uppercase', marginBottom: '1rem', borderBottom: '1px solid var(--sl-color-border)', paddingBottom: '0.4rem' }}>
               👁️ Previsualización en Vivo (Starlight)
             </div>
+            {docTitle && (
+              <h1 style={{ fontSize: '1.85rem', fontWeight: 800, color: 'var(--sl-color-text-title)', marginBottom: '1.25rem', borderBottom: '1px solid var(--sl-color-border)', paddingBottom: '0.5rem' }}>
+                {docTitle}
+              </h1>
+            )}
             <MarkdownRenderer content={rawMarkdown} />
           </div>
         )}

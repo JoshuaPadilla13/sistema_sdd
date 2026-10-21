@@ -34,7 +34,10 @@ export default function EditDocumentPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  const handleEditorChange = ({ blocks: newBlocks, rawMarkdown: newMd }) => {
+  const handleEditorChange = ({ title: newTitle, blocks: newBlocks, rawMarkdown: newMd }) => {
+    if (newTitle !== undefined) {
+      setTitle(newTitle);
+    }
     setBlocks(newBlocks);
     setRawMarkdown(newMd);
   };
@@ -186,6 +189,8 @@ export default function EditDocumentPage() {
 
       {/* EDITOR VISUAL POR BLOQUES */}
       <BlockEditor
+        title={title}
+        onTitleChange={setTitle}
         initialBlocks={blocks}
         initialMarkdown={rawMarkdown}
         onChange={handleEditorChange}
