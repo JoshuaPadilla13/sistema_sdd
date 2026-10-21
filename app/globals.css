@@ -230,6 +230,31 @@ body {
   height: calc(100vh - var(--sl-header-height));
   flex-shrink: 0;
   transition: width 0.25s ease, padding 0.25s ease;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 148, 158, 0.25) transparent;
+}
+
+/* SCROLLBAR MODERNO Y ULTRA DELGADO (SIDEBAR) */
+.sl-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sl-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sl-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(139, 148, 158, 0.2);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+.sl-sidebar:hover::-webkit-scrollbar-thumb {
+  background: rgba(139, 148, 158, 0.4);
+}
+
+.sl-sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--sl-color-accent);
 }
 
 /* CONTROLES SUPERIORES DEL SIDEBAR */
@@ -504,6 +529,31 @@ body.sl-sidebar-collapsed .sl-toc-pane,
   overflow-y: auto;
   flex-shrink: 0;
   border-left: 1px solid var(--sl-color-border);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 148, 158, 0.25) transparent;
+}
+
+/* SCROLLBAR MODERNO Y ULTRA DELGADO (TOC) */
+.sl-toc-pane::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sl-toc-pane::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sl-toc-pane::-webkit-scrollbar-thumb {
+  background: rgba(139, 148, 158, 0.2);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+.sl-toc-pane:hover::-webkit-scrollbar-thumb {
+  background: rgba(139, 148, 158, 0.4);
+}
+
+.sl-toc-pane::-webkit-scrollbar-thumb:hover {
+  background: var(--sl-color-accent);
 }
 
 .sl-toc-title {
