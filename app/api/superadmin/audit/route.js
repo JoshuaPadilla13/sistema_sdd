@@ -3,7 +3,7 @@ import { auth0 } from "../../../../lib/auth0.js";
 import { isAuthorizedSuperAdmin } from "../../../../lib/services/users.js";
 import { db } from "../../../../lib/db/index.js";
 import * as schema from "../../../../lib/db/schema.js";
-import { desc, eq, and, sql } from "drizzle-orm";
+import { desc, eq, and, sql, or, inArray } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +36,16 @@ export async function GET(request) {
     const actionFilter = searchParams.get("action");
     const search = searchParams.get("search");
 
-    let query = db.select().from(schema.auditLogs);
+    // 1. Obtener usuarios registrados para cruzar ID/Auth0Id con Nombre de Usuario y Foto
+    const allUsers = await db
+      .select({
+        id: schema.users.id,
+        name: schema.users.name,
+        email: schema.users.email,
+        auth0Id: schema.users.auth0Id,
+        picture: schema.users.picture,
+      })
+      .from(schema.users);
 
     const conditions = [];
 
@@ -49,19 +58,55 @@ export async function GET(request) {
     }
 
     if (search && search.trim() !== "") {
-      const term = `%${search.trim().toLowerCase()}%`;
-      conditions.push(
-        sql`(LOWER(${schema.auditLogs.changedBy}) LIKE ${term} OR LOWER(${schema.auditLogs.recordId}) LIKE ${term} OR LOWER(${schema.auditLogs.tableName}) LIKE ${term})`
-      );
+      const termRaw = search.trim().toLowerCase();
+      const term = `%${termRaw}%`;
+
+      // Encontrar usuarios cuyo nombre o correo coincida con la búsqueda
+      const matchingUserIdentifiers = allUsers
+        .filter((u) => (u.name && u.name.toLowerCase().includes(termRaw)) || (u.email && u.email.toLowerCase().includes(termRaw)))
+        .map((u) => [u.auth0Id, u.email, u.id])
+        .flat()
+        .filter(Boolean);
+
+      const searchConditions = [
+        sql`LOWER(${schema.auditLogs.changedBy}) LIKE ${term}`,
+        sql`LOWER(${schema.auditLogs.recordId}) LIKE ${term}`,
+        sql`LOWER(${schema.auditLogs.tableName}) LIKE ${term}`,
+      ];
+
+      if (matchingUserIdentifiers.length > 0) {
+        searchConditions.push(inArray(schema.auditLogs.changedBy, matchingUserIdentifiers));
+      }
+
+      conditions.push(or(...searchConditions));
     }
+
+    let query = db.select().from(schema.auditLogs);
 
     if (conditions.length > 0) {
       query = query.where(and(...conditions));
     }
 
-    const logs = await query
+    const rawLogs = await query
       .orderBy(desc(schema.auditLogs.changedAt))
       .limit(limit);
+
+    // 2. Enriquecer cada log con el Nombre de Usuario, Correo y Foto
+    const logs = rawLogs.map((log) => {
+      const matchedUser = allUsers.find(
+        (u) =>
+          (u.auth0Id && u.auth0Id === log.changedBy) ||
+          (u.email && u.email.toLowerCase() === log.changedBy?.toLowerCase()) ||
+          (u.id && u.id === log.changedBy)
+      );
+
+      return {
+        ...log,
+        userName: matchedUser?.name || null,
+        userEmail: matchedUser?.email || null,
+        userPicture: matchedUser?.picture || null,
+      };
+    });
 
     return NextResponse.json({ logs });
   } catch (error) {

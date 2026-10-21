@@ -97,11 +97,11 @@ export default function AuditLogsViewer() {
         borderRadius: '8px',
         border: '1px solid var(--sl-color-border)'
       }}>
-        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '0.5rem', flex: '1 1 280px', maxWidth: '400px' }}>
+        <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '0.5rem', flex: '1 1 280px', maxWidth: '420px' }}>
           <div style={{ position: 'relative', width: '100%' }}>
             <input
               type="text"
-              placeholder="Buscar por usuario o ID de registro..."
+              placeholder="Buscar por nombre, correo o ID..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{
@@ -195,7 +195,7 @@ export default function AuditLogsViewer() {
               <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Tabla</th>
               <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Operación</th>
               <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>ID Registro</th>
-              <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Responsable (Usuario)</th>
+              <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Usuario Responsable</th>
               <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem', textAlign: 'right' }}>Diff / Detalle</th>
             </tr>
           </thead>
@@ -246,10 +246,46 @@ export default function AuditLogsViewer() {
                       {log.recordId}
                     </span>
                   </td>
-                  <td style={{ padding: '0.9rem 1.25rem', fontSize: '0.85rem', color: 'var(--sl-color-text-title)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                      <User size={13} color="var(--sl-color-accent)" />
-                      <span style={{ fontWeight: 500 }}>{log.changedBy || 'SYSTEM'}</span>
+                  <td style={{ padding: '0.9rem 1.25rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                      {log.userPicture ? (
+                        <img
+                          src={log.userPicture}
+                          alt={log.userName || 'Usuario'}
+                          style={{
+                            width: '32px',
+                            height: '32px',
+                            borderRadius: '50%',
+                            objectFit: 'cover',
+                            border: '1px solid var(--sl-color-border)',
+                            flexShrink: 0
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: '32px',
+                          height: '32px',
+                          borderRadius: '50%',
+                          background: 'rgba(88, 166, 255, 0.15)',
+                          color: '#58a6ff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          flexShrink: 0
+                        }}>
+                          {(log.userName || log.changedBy || 'U').charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div>
+                        <div style={{ fontWeight: 600, color: 'var(--sl-color-text-title)', fontSize: '0.88rem' }}>
+                          {log.userName || 'Sistema / Sin asignar'}
+                        </div>
+                        <div style={{ fontSize: '0.74rem', color: 'var(--sl-color-text-muted)' }}>
+                          {log.userEmail || log.changedBy}
+                        </div>
+                      </div>
                     </div>
                   </td>
                   <td style={{ padding: '0.9rem 1.25rem', textAlign: 'right' }}>
@@ -306,7 +342,7 @@ export default function AuditLogsViewer() {
               background: 'rgba(255, 255, 255, 0.02)'
             }}>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '0.35rem' }}>
                   <span className={`sl-badge ${getActionBadgeClass(selectedLog.action)}`}>
                     {selectedLog.action}
                   </span>
@@ -314,8 +350,8 @@ export default function AuditLogsViewer() {
                     Registro de Auditoría #{selectedLog.id} en <code>{selectedLog.tableName}</code>
                   </h3>
                 </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--sl-color-text-muted)' }}>
-                  Modificado por <strong>{selectedLog.changedBy}</strong> el {formatDate(selectedLog.changedAt)} (ID: <code>{selectedLog.recordId}</code>)
+                <div style={{ fontSize: '0.82rem', color: 'var(--sl-color-text-muted)' }}>
+                  Modificado por <strong style={{ color: 'var(--sl-color-text-title)' }}>{selectedLog.userName || selectedLog.changedBy}</strong> {selectedLog.userEmail && `(${selectedLog.userEmail})`} el {formatDate(selectedLog.changedAt)} (ID: <code>{selectedLog.recordId}</code>)
                 </div>
               </div>
               <button
