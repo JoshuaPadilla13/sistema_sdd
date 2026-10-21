@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Upload } from 'lucide-react';
+import { Upload, Shield } from 'lucide-react';
 import { db } from '../../lib/db/index';
 import * as schema from '../../lib/db/schema';
 import { asc, desc } from 'drizzle-orm';
@@ -56,7 +56,8 @@ export default async function AdminDashboardPage() {
           </Link>
           {isSuperAdmin && (
             <Link href="/superadmin" className="sl-btn sl-btn-outline" style={{ borderColor: 'var(--sl-badge-danger)', color: '#ff7b72' }}>
-              <span>Gestión de Roles (Super Admin)</span>
+              <Shield size={16} />
+              <span>Super Admin & Auditoría</span>
             </Link>
           )}
         </div>
