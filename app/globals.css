@@ -681,10 +681,30 @@ body.sl-sidebar-collapsed .sl-toc-pane,
    ========================================================= */
 
 .sl-hero {
-  text-align: center;
-  padding: 3.5rem 1rem 2.5rem;
-  max-width: 850px;
+  padding: 3rem 1rem 2rem;
+  max-width: 1050px;
   margin: 0 auto;
+}
+
+.sl-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: 2.5rem;
+  text-align: center;
+}
+
+@media (min-width: 820px) {
+  .sl-hero-grid {
+    grid-template-columns: 1.2fr 0.8fr;
+    text-align: left;
+    gap: 3rem;
+  }
+}
+
+.sl-hero-copy {
+  display: flex;
+  flex-direction: column;
 }
 
 .sl-hero-title {
@@ -693,19 +713,55 @@ body.sl-sidebar-collapsed .sl-toc-pane,
   color: var(--sl-color-text-title);
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
+  line-height: 1.18;
 }
 
 .sl-hero-subtitle {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   color: var(--sl-color-text-muted);
   margin-bottom: 2rem;
+  line-height: 1.6;
 }
 
 .sl-hero-actions {
   display: flex;
   gap: 1rem;
-  justify-content: center;
   flex-wrap: wrap;
+}
+
+@media (max-width: 819px) {
+  .sl-hero-actions {
+    justify-content: center;
+  }
+}
+
+.sl-hero-image-wrapper {
+  display: flex;
+  align-items: center;
+  justifyContent: center;
+}
+
+.sl-hero-image {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.45)) drop-shadow(0 0 25px rgba(88, 166, 255, 0.28));
+  animation: slFloat 6s ease-in-out infinite;
+  transition: transform 0.3s ease;
+}
+
+.sl-hero-image:hover {
+  transform: scale(1.04) rotate(1deg);
+}
+
+@keyframes slFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .sl-cards-grid {

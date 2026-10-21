@@ -121,23 +121,37 @@ export default async function HomePage() {
 
       <div className="sl-main-container">
         <div className="sl-content-pane" style={{ maxWidth: '1100px' }}>
-          {/* HERO */}
+          {/* HERO CON IMAGEN OFICIAL */}
           <section className="sl-hero">
-            <h1 className="sl-hero-title">Spec Driven Development (SDD)</h1>
-            <p className="sl-hero-subtitle">
-              Metodología estandarizada de 7 fases para transformar requerimientos de negocio en software riguroso, testeable y ejecutable por equipos e IA.
-            </p>
-            <div className="sl-hero-actions">
-              <Link href="/docs/introduccion/flujo-sdd" className="sl-btn sl-btn-primary">
-                <span>Explorar las 7 Fases</span>
-                <ArrowRight size={16} />
-              </Link>
-              <Link href="/docs/plantillas/documento-base-proyecto" className="sl-btn sl-btn-outline">
-                <span>Ver Plantillas Oficiales</span>
-              </Link>
-              <Link href="/docs/requerimientos/sintaxis-ears" className="sl-btn sl-btn-outline">
-                <span>Sintaxis EARS</span>
-              </Link>
+            <div className="sl-hero-grid">
+              <div className="sl-hero-copy">
+                <h1 className="sl-hero-title">Spec Driven Development (SDD)</h1>
+                <p className="sl-hero-subtitle">
+                  Metodología estandarizada de 7 fases para transformar requerimientos de negocio en software riguroso, testeable y ejecutable por equipos e IA.
+                </p>
+                <div className="sl-hero-actions">
+                  <Link href="/docs/introduccion/flujo-sdd" className="sl-btn sl-btn-primary">
+                    <span>Explorar las 7 Fases</span>
+                    <ArrowRight size={16} />
+                  </Link>
+                  <Link href="/docs/plantillas/documento-base-proyecto" className="sl-btn sl-btn-outline">
+                    <span>Ver Plantillas Oficiales</span>
+                  </Link>
+                  <Link href="/docs/requerimientos/sintaxis-ears" className="sl-btn sl-btn-outline">
+                    <span>Sintaxis EARS</span>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="sl-hero-image-wrapper">
+                <img
+                  src="/houston.webp"
+                  alt="Houston - Spec Driven Development (SDD)"
+                  width="380"
+                  height="380"
+                  className="sl-hero-image"
+                />
+              </div>
             </div>
           </section>
 
