@@ -14,7 +14,8 @@ import {
   CheckCircle2, 
   AlertCircle,
   FileText,
-  RefreshCw
+  RefreshCw,
+  GripVertical
 } from 'lucide-react';
 
 export default function AdminDocumentsTable({ initialDocuments = [], categories = [] }) {
@@ -24,6 +25,10 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
   const [savingOrder, setSavingOrder] = useState(false);
   const [feedback, setFeedback] = useState(null); // { type: 'success' | 'error', text: string }
   const [deletingId, setDeletingId] = useState(null);
+
+  // Estados para Drag & Drop con el mouse
+  const [draggedId, setDraggedId] = useState(null);
+  const [dragOverId, setDragOverId] = useState(null);
 
   const categoryMap = new Map(categories.map((c) => [c.id, c.title]));
 
@@ -35,16 +40,8 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
     }, 3500);
   };
 
-  // Mover documento arriba o abajo
-  const handleMove = async (index, direction) => {
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= docs.length) return;
-
-    // Crear nuevo orden optimista en el estado
-    const newDocs = [...docs];
-    const [movedItem] = newDocs.splice(index, 1);
-    newDocs.splice(targetIndex, 0, movedItem);
-
+  // Función común para persistir el nuevo orden en el backend
+  const saveNewOrder = async (newDocs, movedTitle) => {
     setDocs(newDocs);
     setSavingOrder(true);
 
@@ -59,15 +56,72 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
         throw new Error('Error al guardar el nuevo orden');
       }
 
-      showFeedback('success', `Orden actualizado: "${movedItem.title}" movido.`);
+      showFeedback('success', `Orden actualizado: "${movedTitle}" movido.`);
     } catch (err) {
       console.error(err);
-      // Revertir en caso de falla
-      setDocs(docs);
+      setDocs(docs); // Revertir en caso de falla
       showFeedback('error', 'No se pudo guardar el nuevo orden.');
     } finally {
       setSavingOrder(false);
     }
+  };
+
+  // Mover documento arriba o abajo mediante botones
+  const handleMove = async (actualIndex, direction) => {
+    const targetIndex = direction === 'up' ? actualIndex - 1 : actualIndex + 1;
+    if (targetIndex < 0 || targetIndex >= docs.length) return;
+
+    const newDocs = [...docs];
+    const [movedItem] = newDocs.splice(actualIndex, 1);
+    newDocs.splice(targetIndex, 0, movedItem);
+
+    await saveNewOrder(newDocs, movedItem.title);
+  };
+
+  // Eventos de Drag and Drop con el mouse
+  const handleDragStart = (e, id) => {
+    setDraggedId(id);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
+  };
+
+  const handleDragOver = (e, id) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (dragOverId !== id) {
+      setDragOverId(id);
+    }
+  };
+
+  const handleDragLeave = (e, id) => {
+    if (dragOverId === id) {
+      setDragOverId(null);
+    }
+  };
+
+  const handleDrop = async (e, targetId) => {
+    e.preventDefault();
+    setDragOverId(null);
+    const sourceId = draggedId || e.dataTransfer.getData('text/plain');
+    setDraggedId(null);
+
+    if (!sourceId || sourceId === targetId) return;
+
+    const fromIndex = docs.findIndex((d) => d.id === sourceId);
+    const toIndex = docs.findIndex((d) => d.id === targetId);
+
+    if (fromIndex === -1 || toIndex === -1) return;
+
+    const newDocs = [...docs];
+    const [movedItem] = newDocs.splice(fromIndex, 1);
+    newDocs.splice(toIndex, 0, movedItem);
+
+    await saveNewOrder(newDocs, movedItem.title);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedId(null);
+    setDragOverId(null);
   };
 
   // Eliminar un archivo/documento
@@ -205,12 +259,26 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
         </div>
       </div>
 
+      {/* AVISO INFORMATIVO DE REORDENAMIENTO */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        fontSize: '0.8rem',
+        color: 'var(--sl-color-text-muted)',
+        marginBottom: '0.75rem',
+        paddingLeft: '0.25rem'
+      }}>
+        <GripVertical size={14} color="var(--sl-color-accent)" />
+        <span>Puedes mover el orden <strong>arrastrando cualquier fila con el ratón</strong> o usando los botones <strong>↑ ↓</strong>.</span>
+      </div>
+
       {/* TABLA DE DOCUMENTOS */}
       <div style={{ background: 'var(--sl-color-bg-sidebar)', border: '1px solid var(--sl-color-border)', borderRadius: '10px', overflowX: 'auto' }}>
-        <table style={{ width: '100%', minWidth: '780px', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <table style={{ width: '100%', minWidth: '820px', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ borderBottom: '1px solid var(--sl-color-border)', background: 'rgba(255, 255, 255, 0.03)' }}>
-              <th style={{ padding: '0.85rem 1rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem', width: '110px' }}>Orden</th>
+              <th style={{ padding: '0.85rem 1rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem', width: '135px' }}>Orden</th>
               <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Título</th>
               <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Fase / Categoría</th>
               <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Slug</th>
@@ -227,37 +295,73 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
                 </td>
               </tr>
             ) : (
-              filteredDocs.map((doc, index) => {
+              filteredDocs.map((doc) => {
+                const actualIndex = docs.findIndex((d) => d.id === doc.id);
                 const catTitle = doc.categoryId ? categoryMap.get(doc.categoryId) : 'Sin categoría';
-                const isFirst = index === 0;
-                const isLast = index === filteredDocs.length - 1;
+                const isFirst = actualIndex === 0;
+                const isLast = actualIndex === docs.length - 1;
                 const isDeleting = deletingId === doc.id;
+                const isBeingDragged = draggedId === doc.id;
+                const isDragOver = dragOverId === doc.id;
 
                 return (
                   <tr 
-                    key={doc.id} 
+                    key={doc.id}
+                    draggable={!savingOrder}
+                    onDragStart={(e) => handleDragStart(e, doc.id)}
+                    onDragOver={(e) => handleDragOver(e, doc.id)}
+                    onDragLeave={(e) => handleDragLeave(e, doc.id)}
+                    onDrop={(e) => handleDrop(e, doc.id)}
+                    onDragEnd={handleDragEnd}
                     style={{ 
                       borderBottom: '1px solid var(--sl-color-border)',
-                      opacity: isDeleting ? 0.4 : 1,
-                      transition: 'background 0.15s ease',
+                      opacity: isDeleting ? 0.3 : isBeingDragged ? 0.45 : 1,
+                      background: isDragOver
+                        ? 'rgba(88, 166, 255, 0.12)'
+                        : isBeingDragged
+                        ? 'rgba(255, 255, 255, 0.03)'
+                        : 'transparent',
+                      outline: isDragOver ? '2px dashed var(--sl-color-accent)' : 'none',
+                      transition: 'background 0.15s ease, opacity 0.15s ease',
+                      cursor: 'move',
                     }}
                   >
-                    {/* CONTROL DE ORDEN (MOVER ARRIBA / MOVER ABAJO) */}
+                    {/* CONTROL DE ORDEN (MANIJA DE ARRASTRE + NÚMERO + BOTONES ARRIBA/ABAJO) */}
                     <td style={{ padding: '0.85rem 1rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        {/* ICONO MANIJA ARRASTRAR CON EL MOUSE */}
+                        <span 
+                          style={{ 
+                            cursor: 'grab', 
+                            color: isBeingDragged ? 'var(--sl-color-accent)' : 'var(--sl-color-text-muted)',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            padding: '2px',
+                            borderRadius: '4px',
+                            transition: 'color 0.15s'
+                          }}
+                          title="Arrastrar fila para cambiar de orden"
+                        >
+                          <GripVertical size={16} />
+                        </span>
+
                         <span style={{ 
                           fontSize: '0.75rem', 
                           fontWeight: 700, 
                           color: 'var(--sl-color-text-muted)',
-                          minWidth: '24px'
+                          minWidth: '22px'
                         }}>
-                          #{index + 1}
+                          #{actualIndex + 1}
                         </span>
 
+                        {/* BOTONES ORIGINALES (ARRIBA Y ABAJO) */}
                         <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '2px' }}>
                           <button
                             type="button"
-                            onClick={() => handleMove(index, 'up')}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMove(actualIndex, 'up');
+                            }}
                             disabled={isFirst || savingOrder}
                             className="sl-btn sl-btn-outline"
                             style={{
@@ -274,7 +378,10 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
                           </button>
                           <button
                             type="button"
-                            onClick={() => handleMove(index, 'down')}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleMove(actualIndex, 'down');
+                            }}
                             disabled={isLast || savingOrder}
                             className="sl-btn sl-btn-outline"
                             style={{
@@ -321,6 +428,7 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
                           className="sl-btn sl-btn-outline"
                           style={{ padding: '0.3rem 0.55rem', fontSize: '0.8rem' }}
                           title="Ver en vista pública"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <Eye size={14} />
                         </Link>
@@ -330,6 +438,7 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
                           className="sl-btn sl-btn-outline"
                           style={{ padding: '0.3rem 0.55rem', fontSize: '0.8rem' }}
                           title="Descargar archivo Markdown (.md)"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <Download size={14} />
                         </a>
@@ -338,6 +447,7 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
                           className="sl-btn sl-btn-outline"
                           style={{ padding: '0.3rem 0.55rem', fontSize: '0.8rem' }}
                           title="Editar documento"
+                          onClick={(e) => e.stopPropagation()}
                         >
                           <Edit size={14} />
                         </Link>
@@ -345,7 +455,10 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
                         {/* BOTÓN ELIMINAR ARCHIVO */}
                         <button
                           type="button"
-                          onClick={() => handleDelete(doc)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(doc);
+                          }}
                           disabled={isDeleting}
                           className="sl-btn sl-btn-outline"
                           style={{
