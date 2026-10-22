@@ -18,7 +18,8 @@
     "db:studio": "drizzle-kit studio",
     "db:seed": "node scripts/seed.mjs",
     "db:audit": "node scripts/migrate-audit.mjs",
-    "db:audit:test": "node scripts/test-audit.mjs"
+    "db:audit:test": "node scripts/test-audit.mjs",
+    "db:sync:templates": "node scripts/sync-agent-factory-templates.mjs"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^4.16.1",
