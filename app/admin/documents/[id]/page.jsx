@@ -58,10 +58,11 @@ export default function EditDocumentPage() {
         setSavedSuccess(true);
         setTimeout(() => setSavedSuccess(false), 3000);
       } else {
-        alert('Error al guardar el documento');
+        const errorData = await res.json().catch(() => ({}));
+        alert(`Error al guardar el documento: ${errorData.error || res.statusText || 'Error inesperado del servidor'}`);
       }
     } catch (err) {
-      alert('Error de conexión');
+      alert(`Error de conexión: ${err.message}`);
     } finally {
       setSaving(false);
     }
