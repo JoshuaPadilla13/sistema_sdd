@@ -5,7 +5,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request, { params }) {
   try {
-    const { slug } = await params;
+    const resolvedParams = await params;
+    const slug = resolvedParams?.slug;
     const document = await getDocumentBySlug(slug);
 
     if (!document) {
@@ -13,7 +14,7 @@ export async function GET(request, { params }) {
     }
 
     const markdownContent = exportMarkdownDocument(document);
-    const fileName = `${document.slug.replace(/\//g, "-")}.md`;
+    const fileName = `${document.slug.split("/").pop()}.md`;
 
     return new NextResponse(markdownContent, {
       status: 200,
