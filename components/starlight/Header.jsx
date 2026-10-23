@@ -62,12 +62,12 @@ export default function Header() {
         <nav className="sl-nav-links sl-desktop-nav">
           <Link 
             href="/docs/introduccion/que-es-sdd" 
-            className={`sl-nav-link ${pathname?.startsWith('/docs/introduccion') ? 'active' : ''}`}
+            className={`sl-nav-link ${pathname?.startsWith('/docs') && !pathname?.startsWith('/docs/plantillas') ? 'active' : ''}`}
           >
             Documentación
           </Link>
           <Link 
-            href="/docs/plantillas/documento-base-proyecto" 
+            href="/docs/plantillas/rq-01-checklist-discovery" 
             className={`sl-nav-link ${pathname?.startsWith('/docs/plantillas') ? 'active' : ''}`}
           >
             Plantillas
@@ -164,14 +164,14 @@ export default function Header() {
             <div className="sl-mobile-nav-content">
               <Link 
                 href="/docs/introduccion/que-es-sdd" 
-                className={`sl-mobile-nav-item ${pathname?.startsWith('/docs/introduccion') ? 'active' : ''}`}
+                className={`sl-mobile-nav-item ${pathname?.startsWith('/docs') && !pathname?.startsWith('/docs/plantillas') ? 'active' : ''}`}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <BookOpen size={18} />
                 <span>Documentación</span>
               </Link>
               <Link 
-                href="/docs/plantillas/documento-base-proyecto" 
+                href="/docs/plantillas/rq-01-checklist-discovery" 
                 className={`sl-mobile-nav-item ${pathname?.startsWith('/docs/plantillas') ? 'active' : ''}`}
                 onClick={() => setMobileMenuOpen(false)}
               >

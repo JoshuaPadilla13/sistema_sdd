@@ -1,5 +1,5 @@
 import React from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Download, Edit3, ArrowLeft, Calendar, User } from 'lucide-react';
 import Sidebar from '../../../components/starlight/Sidebar';
@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function DocPage({ params }) {
   const { slug } = await params;
-  const fullSlug = Array.isArray(slug) ? slug.join('/') : slug;
+  const fullSlug = Array.isArray(slug) ? slug.join('/') : (slug || '');
 
   const [tree, document] = await Promise.all([
     getNavigationTree(),
@@ -21,6 +21,19 @@ export default async function DocPage({ params }) {
   ]);
 
   if (!document) {
+    // 1. Si el slug es directamente una categoría (ej: /docs/plantillas)
+    const categoryMatch = tree.find((c) => c.slug === fullSlug);
+    if (categoryMatch && categoryMatch.documents?.length > 0) {
+      redirect(`/docs/${categoryMatch.documents[0].slug}`);
+    }
+
+    // 2. Si el slug empieza con una categoría existente pero el subdocumento no existe
+    const firstPart = fullSlug.split('/')[0];
+    const parentCategory = tree.find((c) => c.slug === firstPart);
+    if (parentCategory && parentCategory.documents?.length > 0) {
+      redirect(`/docs/${parentCategory.documents[0].slug}`);
+    }
+
     notFound();
   }
 
