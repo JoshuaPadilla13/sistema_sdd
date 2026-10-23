@@ -18,7 +18,7 @@ import {
   GripVertical
 } from 'lucide-react';
 
-export default function AdminDocumentsTable({ initialDocuments = [], categories = [] }) {
+export default function AdminDocumentsTable({ initialDocuments = [], categories = [], availableTemplates = [] }) {
   const [docs, setDocs] = useState(initialDocuments);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -38,6 +38,36 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
     setTimeout(() => {
       setFeedback(null);
     }, 3500);
+  };
+
+  // Actualizar plantilla asociada para descarga
+  const handleTemplateChange = async (docId, newTemplateSlug) => {
+    try {
+      const res = await fetch(`/api/docs/${docId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ templateSlug: newTemplateSlug || null }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Error al actualizar la plantilla asociada');
+      }
+
+      setDocs((prev) =>
+        prev.map((d) => (d.id === docId ? { ...d, templateSlug: newTemplateSlug || null } : d))
+      );
+
+      const chosenT = availableTemplates.find((t) => t.slug === newTemplateSlug);
+      showFeedback(
+        'success',
+        newTemplateSlug
+          ? `Plantilla "${chosenT?.title || newTemplateSlug}" vinculada al documento.`
+          : 'Plantilla desvinculada del documento.'
+      );
+    } catch (err) {
+      console.error(err);
+      showFeedback('error', 'No se pudo actualizar la plantilla asociada.');
+    }
   };
 
   // Función común para persistir el nuevo orden en el backend
@@ -281,6 +311,7 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
               <th style={{ padding: '0.85rem 1rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem', width: '135px' }}>Orden</th>
               <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Título</th>
               <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Fase / Categoría</th>
+              <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Plantilla Asociada (.md)</th>
               <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Slug</th>
               <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem' }}>Estado</th>
               <th style={{ padding: '0.85rem 1.25rem', color: 'var(--sl-color-text-title)', fontSize: '0.85rem', textAlign: 'right' }}>Acciones</th>
@@ -289,7 +320,7 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
           <tbody>
             {filteredDocs.length === 0 ? (
               <tr>
-                <td colSpan={6} style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--sl-color-text-muted)' }}>
+                <td colSpan={7} style={{ padding: '2.5rem', textAlign: 'center', color: 'var(--sl-color-text-muted)' }}>
                   <FileText size={32} style={{ margin: '0 auto 0.75rem', opacity: 0.4 }} />
                   <p>No se encontraron archivos con los criterios seleccionados.</p>
                 </td>
@@ -408,6 +439,32 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
                     {/* FASE / CATEGORÍA */}
                     <td style={{ padding: '1rem 1.25rem', color: 'var(--sl-color-text-muted)', fontSize: '0.88rem' }}>
                       {catTitle}
+                    </td>
+
+                    {/* PLANTILLA ASOCIADA PARA DESCARGA */}
+                    <td style={{ padding: '0.85rem 1.25rem' }} onClick={(e) => e.stopPropagation()}>
+                      <select
+                        value={doc.templateSlug || ''}
+                        onChange={(e) => handleTemplateChange(doc.id, e.target.value)}
+                        style={{
+                          padding: '0.35rem 0.65rem',
+                          borderRadius: '6px',
+                          background: doc.templateSlug ? 'rgba(35, 134, 54, 0.15)' : 'var(--sl-color-bg)',
+                          color: doc.templateSlug ? '#7ee787' : 'var(--sl-color-text-muted)',
+                          border: `1px solid ${doc.templateSlug ? 'rgba(46, 160, 67, 0.5)' : 'var(--sl-color-border)'}`,
+                          fontSize: '0.82rem',
+                          maxWidth: '220px',
+                          cursor: 'pointer',
+                        }}
+                        title="Selecciona la plantilla descargable (.md) para este documento"
+                      >
+                        <option value="">-- Sin plantilla --</option>
+                        {availableTemplates.map((t) => (
+                          <option key={t.slug} value={t.slug}>
+                            {t.title}
+                          </option>
+                        ))}
+                      </select>
                     </td>
 
                     {/* SLUG */}

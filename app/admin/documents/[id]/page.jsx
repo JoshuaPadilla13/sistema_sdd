@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Save, Download, Eye, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Save, Download, Eye, CheckCircle2, FileDown } from 'lucide-react';
 import BlockEditor from '../../../../components/admin/BlockEditor';
 
 export default function EditDocumentPage() {
@@ -13,6 +13,8 @@ export default function EditDocumentPage() {
   const [document, setDocument] = useState(null);
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
+  const [templateSlug, setTemplateSlug] = useState('');
+  const [availableTemplates, setAvailableTemplates] = useState([]);
   const [blocks, setBlocks] = useState([]);
   const [rawMarkdown, setRawMarkdown] = useState('');
   const [loading, setLoading] = useState(true);
@@ -20,6 +22,17 @@ export default function EditDocumentPage() {
   const [savedSuccess, setSavedSuccess] = useState(false);
 
   useEffect(() => {
+    // Cargar templates disponibles para asociar
+    fetch('/api/docs/templates')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.templates) {
+          setAvailableTemplates(data.templates);
+        }
+      })
+      .catch(() => {});
+
+    // Cargar documento actual
     fetch(`/api/docs/${id}`)
       .then((res) => res.json())
       .then((data) => {
@@ -27,6 +40,7 @@ export default function EditDocumentPage() {
           setDocument(data);
           setTitle(data.title || '');
           setSlug(data.slug || '');
+          setTemplateSlug(data.templateSlug || data.frontmatter?.templateSlug || '');
           setBlocks(Array.isArray(data.blocks) ? data.blocks : []);
           setRawMarkdown(data.rawMarkdown || '');
         }
@@ -51,7 +65,13 @@ export default function EditDocumentPage() {
       const res = await fetch(`/api/docs/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, slug, blocks, rawMarkdown }),
+        body: JSON.stringify({ 
+          title, 
+          slug, 
+          blocks, 
+          rawMarkdown, 
+          templateSlug: templateSlug || null 
+        }),
       });
 
       if (res.ok) {
@@ -141,12 +161,21 @@ export default function EditDocumentPage() {
           fontSize: '0.9rem',
         }}>
           <CheckCircle2 size={18} />
-          <span>Bloques y contenido Markdown guardados exitosamente en Neon PostgreSQL.</span>
+          <span>Bloques y metadatos guardados exitosamente en Neon PostgreSQL.</span>
         </div>
       )}
 
-      {/* METADATOS BÁSICOS (TÍTULO Y SLUG) */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+      {/* METADATOS BÁSICOS (TÍTULO, SLUG Y PLANTILLA ASOCIADA) */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+        gap: '1.25rem', 
+        marginBottom: '1.5rem',
+        background: 'var(--sl-color-bg-sidebar)',
+        border: '1px solid var(--sl-color-border)',
+        borderRadius: '10px',
+        padding: '1.25rem',
+      }}>
         <div>
           <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sl-color-text-muted)', marginBottom: '0.35rem' }}>
             Título del Documento:
@@ -159,7 +188,7 @@ export default function EditDocumentPage() {
               width: '100%',
               padding: '0.6rem 0.85rem',
               borderRadius: '6px',
-              background: 'var(--sl-color-bg-sidebar)',
+              background: 'var(--sl-color-bg)',
               color: 'var(--sl-color-text)',
               border: '1px solid var(--sl-color-border)',
               fontSize: '0.9rem',
@@ -179,12 +208,43 @@ export default function EditDocumentPage() {
               width: '100%',
               padding: '0.6rem 0.85rem',
               borderRadius: '6px',
-              background: 'var(--sl-color-bg-sidebar)',
+              background: 'var(--sl-color-bg)',
               color: 'var(--sl-color-text)',
               border: '1px solid var(--sl-color-border)',
               fontSize: '0.9rem',
             }}
           />
+        </div>
+
+        <div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', fontWeight: 600, color: 'var(--sl-badge-success, #238636)', marginBottom: '0.35rem' }}>
+            <FileDown size={14} />
+            <span>Plantilla Asociada para Descarga:</span>
+          </label>
+          <select
+            value={templateSlug}
+            onChange={(e) => setTemplateSlug(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.6rem 0.85rem',
+              borderRadius: '6px',
+              background: 'var(--sl-color-bg)',
+              color: 'var(--sl-color-text)',
+              border: '1px solid var(--sl-color-border)',
+              fontSize: '0.88rem',
+              cursor: 'pointer',
+            }}
+          >
+            <option value="">-- Ninguna (No mostrar botón de plantilla) --</option>
+            {availableTemplates.map((t) => (
+              <option key={t.slug} value={t.slug}>
+                {t.title}
+              </option>
+            ))}
+          </select>
+          <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--sl-color-text-muted)', marginTop: '0.35rem' }}>
+            Los usuarios verán un botón de descarga debajo del título apuntando a esta plantilla .md.
+          </span>
         </div>
       </div>
 

@@ -66,7 +66,7 @@ export default async function DocPage({ params }) {
           <MobileTableOfContents headings={headings} />
 
           {/* Renderizado de Markdown */}
-          <MarkdownRenderer content={document.rawMarkdown} />
+          <MarkdownRenderer content={document.rawMarkdown} template={document.template} />
         </article>
 
         {/* Panel lateral 'En esta página' en Desktop */}

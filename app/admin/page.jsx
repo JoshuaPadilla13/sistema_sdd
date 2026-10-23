@@ -7,6 +7,7 @@ import { asc, desc } from 'drizzle-orm';
 
 import { auth0 } from '../../lib/auth0';
 import { isAuthorizedSuperAdmin } from '../../lib/services/users';
+import { getAvailableTemplates } from '../../lib/services/docs';
 import AdminDocumentsTable from '../../components/admin/AdminDocumentsTable';
 
 export const dynamic = 'force-dynamic';
@@ -22,20 +23,23 @@ export default async function AdminDashboardPage() {
     // Modo seguro si no hay sesión
   }
 
-  const documents = await db
-    .select({
-      id: schema.documents.id,
-      title: schema.documents.title,
-      slug: schema.documents.slug,
-      categoryId: schema.documents.categoryId,
-      orderIndex: schema.documents.orderIndex,
-      isPublished: schema.documents.isPublished,
-      updatedAt: schema.documents.updatedAt,
-    })
-    .from(schema.documents)
-    .orderBy(asc(schema.documents.orderIndex), desc(schema.documents.updatedAt));
-
-  const categories = await db.select().from(schema.categories).orderBy(asc(schema.categories.orderIndex));
+  const [documents, categories, availableTemplates] = await Promise.all([
+    db
+      .select({
+        id: schema.documents.id,
+        title: schema.documents.title,
+        slug: schema.documents.slug,
+        categoryId: schema.documents.categoryId,
+        templateSlug: schema.documents.templateSlug,
+        orderIndex: schema.documents.orderIndex,
+        isPublished: schema.documents.isPublished,
+        updatedAt: schema.documents.updatedAt,
+      })
+      .from(schema.documents)
+      .orderBy(asc(schema.documents.orderIndex), desc(schema.documents.updatedAt)),
+    db.select().from(schema.categories).orderBy(asc(schema.categories.orderIndex)),
+    getAvailableTemplates(),
+  ]);
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2.5rem 1.5rem' }}>
@@ -45,7 +49,7 @@ export default async function AdminDashboardPage() {
             🛠️ Panel de Administración de Contenido
           </h1>
           <p style={{ color: 'var(--sl-color-text-muted)', fontSize: '0.95rem' }}>
-            Gestiona la documentación de SDD, reorganiza el orden de los archivos, sube nuevos Markdown (.md) o elimina archivos.
+            Gestiona la documentación de SDD, asocia plantillas descargables a las fases, reorganiza el orden de los archivos y edita contenido.
           </p>
         </div>
 
@@ -63,8 +67,12 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* TABLA INTERACTIVA DE DOCUMENTOS (REORDENAMIENTO Y ELIMINACIÓN) */}
-      <AdminDocumentsTable initialDocuments={documents} categories={categories} />
+      {/* TABLA INTERACTIVA DE DOCUMENTOS CON SELECCIÓN DE PLANTILLAS */}
+      <AdminDocumentsTable 
+        initialDocuments={documents} 
+        categories={categories} 
+        availableTemplates={availableTemplates}
+      />
     </div>
   );
 }
