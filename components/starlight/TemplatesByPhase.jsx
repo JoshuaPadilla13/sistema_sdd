@@ -312,10 +312,14 @@ export default function TemplatesByPhase({ initialTemplates = [], title, subtitl
         }}>
           <FileText size={36} style={{ margin: '0 auto 0.75rem', opacity: 0.4 }} />
           <p style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--sl-color-text)' }}>
-            No se encontraron plantillas para el criterio seleccionado
+            {selectedPhase !== 'all'
+              ? `Las plantillas para ${PHASES_INFO.find((p) => String(p.id) === selectedPhase)?.name || 'esta fase'} están en desarrollo (Próximamente)`
+              : 'No se encontraron plantillas para el criterio seleccionado'}
           </p>
           <p style={{ fontSize: '0.85rem' }}>
-            Intenta buscar con otro término o selecciona "Todas las Fases".
+            {selectedPhase !== 'all'
+              ? 'Puedes explorar las plantillas disponibles de la Fase 1 (Requerimientos) seleccionando "Todas" o "Fase 1".'
+              : 'Intenta buscar con otro término o limpia los filtros.'}
           </p>
         </div>
       ) : (
