@@ -73,40 +73,36 @@ export default function Header() {
             Plantillas
           </Link>
 
-          {/* PESTAÑAS ADMINISTRATIVAS CONDICIONALES */}
-          {authState.isAuthenticated && isAdmin && (
-            <Link
-              href="/admin"
-              className={`sl-nav-link ${pathname?.startsWith('/admin') ? 'active' : ''}`}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.35rem',
-                color: 'var(--sl-badge-caution)',
-                fontWeight: 600,
-              }}
-            >
-              <Settings size={15} />
-              <span>Administrador</span>
-            </Link>
-          )}
+          {/* PESTAÑAS ADMINISTRATIVAS VISIBLES PARA TODOS */}
+          <Link
+            href="/admin"
+            className={`sl-nav-link ${pathname?.startsWith('/admin') ? 'active' : ''}`}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.35rem',
+              color: 'var(--sl-badge-caution)',
+              fontWeight: 600,
+            }}
+          >
+            <Settings size={15} />
+            <span>Administrador</span>
+          </Link>
 
-          {authState.isAuthenticated && isSuperAdmin && (
-            <Link
-              href="/superadmin"
-              className={`sl-nav-link ${pathname?.startsWith('/superadmin') ? 'active' : ''}`}
-              style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.35rem',
-                color: '#ff7b72',
-                fontWeight: 600,
-              }}
-            >
-              <Shield size={15} />
-              <span>Super Admin</span>
-            </Link>
-          )}
+          <Link
+            href="/superadmin"
+            className={`sl-nav-link ${pathname?.startsWith('/superadmin') ? 'active' : ''}`}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.35rem',
+              color: '#ff7b72',
+              fontWeight: 600,
+            }}
+          >
+            <Shield size={15} />
+            <span>Super Admin</span>
+          </Link>
 
           {/* ESTADO DE SESIÓN (DESKTOP) */}
           {!authState.loading && (
@@ -178,29 +174,25 @@ export default function Header() {
                 <span>Plantillas por Fases</span>
               </Link>
 
-              {authState.isAuthenticated && isAdmin && (
-                <Link
-                  href="/admin"
-                  className={`sl-mobile-nav-item ${pathname?.startsWith('/admin') ? 'active' : ''}`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  style={{ color: 'var(--sl-badge-caution)' }}
-                >
-                  <Settings size={18} />
-                  <span>Panel Administrador</span>
-                </Link>
-              )}
+              <Link
+                href="/admin"
+                className={`sl-mobile-nav-item ${pathname?.startsWith('/admin') ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+                style={{ color: 'var(--sl-badge-caution)' }}
+              >
+                <Settings size={18} />
+                <span>Panel Administrador</span>
+              </Link>
 
-              {authState.isAuthenticated && isSuperAdmin && (
-                <Link
-                  href="/superadmin"
-                  className={`sl-mobile-nav-item ${pathname?.startsWith('/superadmin') ? 'active' : ''}`}
-                  onClick={() => setMobileMenuOpen(false)}
-                  style={{ color: '#ff7b72' }}
-                >
-                  <Shield size={18} />
-                  <span>Panel Super Admin</span>
-                </Link>
-              )}
+              <Link
+                href="/superadmin"
+                className={`sl-mobile-nav-item ${pathname?.startsWith('/superadmin') ? 'active' : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+                style={{ color: '#ff7b72' }}
+              >
+                <Shield size={18} />
+                <span>Panel Super Admin</span>
+              </Link>
 
               <div className="sl-mobile-nav-divider" />
 

@@ -21,11 +21,14 @@ export async function proxy(request) {
   // - Documentación pública: "/docs" y "/docs/*"
   // - Pantalla de login: "/login"
   // - Endpoints API: "/api/*"
+  // - Panel Admin y Super Admin abiertos para visualización
   if (
     pathname === "/" ||
     pathname.startsWith("/docs") ||
     pathname === "/login" ||
-    pathname.startsWith("/api")
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/superadmin")
   ) {
     return authRes;
   }

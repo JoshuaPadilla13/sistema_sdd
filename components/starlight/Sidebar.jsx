@@ -15,7 +15,9 @@ import {
   FileText,
   Layers,
   FolderArchive,
-  ExternalLink
+  ExternalLink,
+  Settings,
+  Shield
 } from 'lucide-react';
 
 const SDD_PHASES_SIDEBAR = [
@@ -477,6 +479,72 @@ export default function Sidebar({ tree = [] }) {
               </div>
             );
           })}
+
+          {/* SECCIÓN 3: ACCESO ADMINISTRATIVO (VISIBLES PARA CUALQUIER USUARIO) */}
+          <div style={{
+            marginTop: '1.25rem',
+            paddingTop: '0.9rem',
+            borderTop: '1px solid var(--sl-color-border)',
+            marginBottom: '0.5rem',
+            paddingLeft: '0.75rem',
+            paddingRight: '0.75rem',
+          }}>
+            <span style={{
+              fontSize: '0.72rem',
+              fontWeight: 800,
+              letterSpacing: '0.06em',
+              textTransform: 'uppercase',
+              color: 'var(--sl-badge-caution, #f2cc60)',
+            }}>
+              🛠️ Control y Administración
+            </span>
+          </div>
+
+          <div style={{ padding: '0 0.5rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+            <Link
+              href="/admin"
+              onClick={() => setMobileOpen(false)}
+              className={`sl-sidebar-item ${pathname?.startsWith('/admin') ? 'active' : ''}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.55rem',
+                padding: '0.45rem 0.75rem',
+                borderRadius: '6px',
+                background: pathname?.startsWith('/admin') ? 'rgba(242, 204, 96, 0.15)' : 'var(--sl-color-bg)',
+                border: `1px solid ${pathname?.startsWith('/admin') ? 'rgba(242, 204, 96, 0.4)' : 'var(--sl-color-border)'}`,
+                color: pathname?.startsWith('/admin') ? '#f2cc60' : 'var(--sl-color-text)',
+                textDecoration: 'none',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+              }}
+            >
+              <Settings size={15} color="#f2cc60" />
+              <span>Panel de Administrador</span>
+            </Link>
+
+            <Link
+              href="/superadmin"
+              onClick={() => setMobileOpen(false)}
+              className={`sl-sidebar-item ${pathname?.startsWith('/superadmin') ? 'active' : ''}`}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.55rem',
+                padding: '0.45rem 0.75rem',
+                borderRadius: '6px',
+                background: pathname?.startsWith('/superadmin') ? 'rgba(255, 123, 114, 0.15)' : 'var(--sl-color-bg)',
+                border: `1px solid ${pathname?.startsWith('/superadmin') ? 'rgba(255, 123, 114, 0.4)' : 'var(--sl-color-border)'}`,
+                color: pathname?.startsWith('/superadmin') ? '#ff7b72' : 'var(--sl-color-text)',
+                textDecoration: 'none',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+              }}
+            >
+              <Shield size={15} color="#ff7b72" />
+              <span>Super Admin & Auditoría</span>
+            </Link>
+          </div>
         </div>
       </aside>
 

@@ -32,23 +32,21 @@ export default function AdminDocActions({ documentId, slug }) {
         <span>Descargar .md</span>
       </a>
 
-      {/* Botón Editar (SOLO para administradores autenticados) */}
-      {isAdmin && (
-        <Link
-          href={`/admin/documents/${documentId}`}
-          className="sl-btn sl-btn-outline"
-          style={{ 
-            fontSize: '0.82rem', 
-            padding: '0.35rem 0.75rem',
-            borderColor: 'var(--sl-badge-caution)',
-            color: '#f2cc60',
-          }}
-          title="Editar bloques en panel de Administrador"
-        >
-          <Edit3 size={14} />
-          <span>Editar Bloques</span>
-        </Link>
-      )}
+      {/* Botón Editar Bloques (Disponible para todos los usuarios) */}
+      <Link
+        href={`/admin/documents/${documentId}`}
+        className="sl-btn sl-btn-outline"
+        style={{ 
+          fontSize: '0.82rem', 
+          padding: '0.35rem 0.75rem',
+          borderColor: 'var(--sl-badge-caution)',
+          color: '#f2cc60',
+        }}
+        title="Editar bloques en panel de Administrador"
+      >
+        <Edit3 size={14} />
+        <span>Editar Bloques</span>
+      </Link>
     </div>
   );
 }
