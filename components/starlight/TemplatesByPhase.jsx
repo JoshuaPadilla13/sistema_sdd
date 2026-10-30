@@ -114,8 +114,8 @@ export default function TemplatesByPhase({ initialTemplates = [], title, subtitl
         else phaseNum = 1;
       }
 
-      // Extraer código de la plantilla (ej: RQ-01, PL-01, TK-01...)
-      const codeMatch = (t.title || '').match(/\b([A-Z]{2}-\d{2})\b/i) || (t.slug || '').match(/([a-z]{2}-\d{2})/i);
+      // Extraer código de la plantilla (ej: RQ-01, PL-00, PL-G, PL-J, PL-M...)
+      const codeMatch = (t.title || '').match(/\b([A-Z]{2}-[0-9A-Z]{1,2})\b/i) || (t.slug || '').match(/([a-z]{2}-[0-9a-z]{1,2})/i);
       const code = codeMatch ? codeMatch[1].toUpperCase() : `F${phaseNum}`;
 
       const phaseInfo = PHASES_INFO.find((p) => p.id === phaseNum) || PHASES_INFO[0];
