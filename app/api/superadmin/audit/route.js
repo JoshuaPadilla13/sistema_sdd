@@ -31,7 +31,7 @@ export async function GET(request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10), 200);
+    const limit = Math.min(parseInt(searchParams.get("limit") || "200", 10), 1000);
     const tableFilter = searchParams.get("table");
     const actionFilter = searchParams.get("action");
     const search = searchParams.get("search");

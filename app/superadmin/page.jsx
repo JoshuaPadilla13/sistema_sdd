@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Shield, ShieldAlert, ShieldCheck, User, ArrowLeft, RefreshCw, Lock, Users, Activity } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldCheck, User, ArrowLeft, RefreshCw, Lock, Users, Activity, ChevronLeft, ChevronRight } from 'lucide-react';
 import AuditLogsViewer from '../../components/admin/AuditLogsViewer';
 
 const SUPER_ADMIN_EMAILS = [
@@ -16,7 +16,9 @@ export default function SuperAdminPage() {
   const [currentUserEmail, setCurrentUserEmail] = useState('');
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('roles'); // 'roles' | 'audit'
+  const [activeTab, setActiveTab] = useState('audit'); // 'audit' | 'roles'
+  const [userPage, setUserPage] = useState(1);
+  const userPageSize = 10;
 
   useEffect(() => {
     // 1. Validar identidad y privilegios antes de cualquier consulta de datos
@@ -218,7 +220,9 @@ export default function SuperAdminPage() {
                   </td>
                 </tr>
               ) : (
-                users.map((u) => {
+                users
+                  .slice((userPage - 1) * userPageSize, userPage * userPageSize)
+                  .map((u) => {
                   const isAdmin = u.roles?.includes('ADMIN');
                   const isSuperAdmin = u.roles?.includes('SUPER_ADMIN');
                   const isDesignatedSuperAdmin = SUPER_ADMIN_EMAILS.includes(u.email?.toLowerCase().trim());
@@ -307,6 +311,46 @@ export default function SuperAdminPage() {
               )}
             </tbody>
           </table>
+
+          {/* Paginación de usuarios (10 por página) */}
+          {users.length > userPageSize && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '0.85rem 1.25rem',
+              borderTop: '1px solid var(--sl-color-border)',
+              fontSize: '0.85rem',
+              color: 'var(--sl-color-text-muted)',
+            }}>
+              <div>
+                Mostrando {(userPage - 1) * userPageSize + 1} a {Math.min(userPage * userPageSize, users.length)} de {users.length} usuarios
+              </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button
+                  onClick={() => setUserPage((p) => Math.max(p - 1, 1))}
+                  disabled={userPage === 1}
+                  className="sl-btn sl-btn-outline"
+                  style={{ fontSize: '0.78rem', padding: '0.25rem 0.6rem', opacity: userPage === 1 ? 0.4 : 1 }}
+                >
+                  <ChevronLeft size={13} />
+                  <span>Anterior</span>
+                </button>
+                <span style={{ alignSelf: 'center', fontWeight: 600 }}>
+                  Página {userPage} de {Math.ceil(users.length / userPageSize)}
+                </span>
+                <button
+                  onClick={() => setUserPage((p) => Math.min(p + 1, Math.ceil(users.length / userPageSize)))}
+                  disabled={userPage === Math.ceil(users.length / userPageSize)}
+                  className="sl-btn sl-btn-outline"
+                  style={{ fontSize: '0.78rem', padding: '0.25rem 0.6rem', opacity: userPage === Math.ceil(users.length / userPageSize) ? 0.4 : 1 }}
+                >
+                  <span>Siguiente</span>
+                  <ChevronRight size={13} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <AuditLogsViewer />
