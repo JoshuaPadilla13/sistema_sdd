@@ -14,6 +14,16 @@ import {
   PanelLeftOpen
 } from 'lucide-react';
 
+const PHASE_LABELS = {
+  1: 'Fase 1 · Requerimientos',
+  2: 'Fase 2 · Plan y Diseño',
+  3: 'Fase 3 · Tareas',
+  4: 'Fase 4 · Desarrollo',
+  5: 'Fase 5 · Testing',
+  6: 'Fase 6 · Deploy',
+  7: 'Fase 7 · Entrega',
+};
+
 export default function Sidebar({ tree = [] }) {
   const pathname = usePathname();
 
@@ -29,7 +39,7 @@ export default function Sidebar({ tree = [] }) {
     const initialState = {};
     tree.forEach((cat) => {
       // Si la categoría contiene el documento activo, asegurar que esté abierta
-      const hasActiveDoc = cat.documents?.some((doc) => `/docs/${doc.slug}` === pathname);
+      const hasActiveDoc = (cat.slug === 'plantillas' && pathname === '/docs/plantillas') || cat.documents?.some((doc) => `/docs/${doc.slug}` === pathname);
       // Por defecto, abrir todas las categorías para facilidad de navegación, o abrir la activa
       initialState[cat.id] = true;
       if (hasActiveDoc) {
@@ -163,7 +173,7 @@ export default function Sidebar({ tree = [] }) {
         <div className="sl-sidebar-content">
           {tree.map((cat) => {
             const isOpen = !!openCategories[cat.id];
-            const hasActiveDoc = cat.documents?.some((doc) => `/docs/${doc.slug}` === pathname);
+            const hasActiveDoc = (cat.slug === 'plantillas' && pathname === '/docs/plantillas') || cat.documents?.some((doc) => `/docs/${doc.slug}` === pathname);
 
             return (
               <div key={cat.id} className={`sl-sidebar-group ${isOpen ? 'is-open' : 'is-collapsed'}`}>
@@ -206,23 +216,73 @@ export default function Sidebar({ tree = [] }) {
                 {/* LISTADO DE DOCUMENTOS DENTRO DE LA CATEGORÍA */}
                 {isOpen && (
                   <ul className="sl-sidebar-list">
-                    {cat.documents && cat.documents.length > 0 ? (
-                      cat.documents.map((doc) => {
-                        const docPath = `/docs/${doc.slug}`;
-                        const isActive = pathname === docPath;
-                        return (
-                          <li key={doc.id} className={`sl-sidebar-item ${isActive ? 'active' : ''}`}>
-                            <Link href={docPath} onClick={() => setMobileOpen(false)}>
-                              <span className="sl-sidebar-item-bullet">•</span>
-                              <span className="sl-sidebar-item-text">{doc.title}</span>
-                            </Link>
-                          </li>
-                        );
-                      })
+                    {cat.slug === 'plantillas' ? (
+                      <>
+                        <li className={`sl-sidebar-item ${pathname === '/docs/plantillas' ? 'active' : ''}`} style={{ marginBottom: '0.45rem' }}>
+                          <Link href="/docs/plantillas" onClick={() => setMobileOpen(false)} style={{ fontWeight: 600, color: pathname === '/docs/plantillas' ? 'var(--sl-color-accent)' : 'inherit' }}>
+                            <span style={{ marginRight: '0.4rem', fontSize: '0.9rem' }}>🗂️</span>
+                            <span className="sl-sidebar-item-text">Ver Catálogo por Fases</span>
+                          </Link>
+                        </li>
+                        {[1, 2, 3, 4, 5, 6, 7].map((phaseNum) => {
+                          const phaseDocs = (cat.documents || []).filter((d) => (d.phase || 1) === phaseNum);
+                          if (phaseDocs.length === 0) return null;
+                          return (
+                            <div key={phaseNum} style={{ marginTop: '0.55rem', marginBottom: '0.25rem' }}>
+                              <div 
+                                style={{ 
+                                  fontSize: '0.72rem', 
+                                  fontWeight: 700, 
+                                  textTransform: 'uppercase', 
+                                  letterSpacing: '0.04em',
+                                  color: 'var(--sl-color-accent)', 
+                                  padding: '0.2rem 0.5rem 0.2rem 0.5rem',
+                                  opacity: 0.85,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '0.35rem'
+                                }}
+                              >
+                                <span>{PHASE_LABELS[phaseNum] || `Fase ${phaseNum}`}</span>
+                                <span style={{ fontSize: '0.65rem', padding: '0.05rem 0.35rem', borderRadius: '999px', background: 'var(--sl-color-hairline)', color: 'var(--sl-color-text-muted)' }}>
+                                  {phaseDocs.length}
+                                </span>
+                              </div>
+                              {phaseDocs.map((doc) => {
+                                const docPath = `/docs/${doc.slug}`;
+                                const isActive = pathname === docPath;
+                                return (
+                                  <li key={doc.id} className={`sl-sidebar-item ${isActive ? 'active' : ''}`} style={{ paddingLeft: '0.5rem' }}>
+                                    <Link href={docPath} onClick={() => setMobileOpen(false)}>
+                                      <span className="sl-sidebar-item-bullet">•</span>
+                                      <span className="sl-sidebar-item-text">{doc.title}</span>
+                                    </Link>
+                                  </li>
+                                );
+                              })}
+                            </div>
+                          );
+                        })}
+                      </>
                     ) : (
-                      <li className="sl-sidebar-item" style={{ paddingLeft: '1.75rem', color: 'var(--sl-color-text-muted)', fontSize: '0.78rem', fontStyle: 'italic' }}>
-                        Próximamente
-                      </li>
+                      cat.documents && cat.documents.length > 0 ? (
+                        cat.documents.map((doc) => {
+                          const docPath = `/docs/${doc.slug}`;
+                          const isActive = pathname === docPath;
+                          return (
+                            <li key={doc.id} className={`sl-sidebar-item ${isActive ? 'active' : ''}`}>
+                              <Link href={docPath} onClick={() => setMobileOpen(false)}>
+                                <span className="sl-sidebar-item-bullet">•</span>
+                                <span className="sl-sidebar-item-text">{doc.title}</span>
+                              </Link>
+                            </li>
+                          );
+                        })
+                      ) : (
+                        <li className="sl-sidebar-item" style={{ paddingLeft: '1.75rem', color: 'var(--sl-color-text-muted)', fontSize: '0.78rem', fontStyle: 'italic' }}>
+                          Próximamente
+                        </li>
+                      )
                     )}
                   </ul>
                 )}

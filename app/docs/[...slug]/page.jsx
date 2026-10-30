@@ -6,7 +6,8 @@ import Sidebar from '../../../components/starlight/Sidebar';
 import TableOfContents, { MobileTableOfContents } from '../../../components/starlight/TableOfContents';
 import MarkdownRenderer from '../../../components/starlight/MarkdownRenderer';
 import AdminDocActions from '../../../components/starlight/AdminDocActions';
-import { getNavigationTree, getDocumentBySlug } from '../../../lib/services/docs';
+import TemplatesByPhase from '../../../components/starlight/TemplatesByPhase';
+import { getNavigationTree, getDocumentBySlug, getAvailableTemplates } from '../../../lib/services/docs';
 import { extractHeadings } from '../../../lib/toc';
 
 export const dynamic = 'force-dynamic';
@@ -21,7 +22,33 @@ export default async function DocPage({ params }) {
   ]);
 
   if (!document) {
-    // 1. Si el slug es directamente una categoría (ej: /docs/plantillas)
+    // Si se navega a /docs/plantillas, mostramos el catálogo organizado por fases
+    if (fullSlug === 'plantillas') {
+      const templates = await getAvailableTemplates();
+      return (
+        <div className="sl-layout">
+          <Sidebar tree={tree} />
+
+          <div className="sl-main-container">
+            <article className="sl-content-pane" style={{ maxWidth: '1020px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', color: 'var(--sl-color-text-muted)', marginBottom: '1.5rem' }}>
+                <Link href="/" style={{ color: 'inherit', textDecoration: 'none' }}>Inicio</Link>
+                <span>/</span>
+                <span style={{ color: 'var(--sl-color-text-title)' }}>Plantillas Oficiales por Fases</span>
+              </div>
+
+              <TemplatesByPhase 
+                initialTemplates={templates}
+                title="Catálogo Oficial de Plantillas SDD por Fases"
+                subtitle="Explora, visualiza y descarga las plantillas markdown (.md) organizadas por cada una de las 7 fases del ciclo de vida SDD."
+              />
+            </article>
+          </div>
+        </div>
+      );
+    }
+
+    // 1. Si el slug es directamente una categoría (ej: /docs/introduccion)
     const categoryMatch = tree.find((c) => c.slug === fullSlug);
     if (categoryMatch && categoryMatch.documents?.length > 0) {
       redirect(`/docs/${categoryMatch.documents[0].slug}`);

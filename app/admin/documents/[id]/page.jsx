@@ -236,11 +236,20 @@ export default function EditDocumentPage() {
             }}
           >
             <option value="">-- Ninguna (No mostrar botón de plantilla) --</option>
-            {availableTemplates.map((t) => (
-              <option key={t.slug} value={t.slug}>
-                {t.title}
-              </option>
-            ))}
+            {[1, 2, 3, 4, 5, 6, 7].map((pNum) => {
+              const pTemplates = availableTemplates.filter((t) => (t.phase || 1) === pNum);
+              if (pTemplates.length === 0) return null;
+              const label = pTemplates[0]?.phaseMeta?.name || `Fase ${pNum}`;
+              return (
+                <optgroup key={pNum} label={label}>
+                  {pTemplates.map((t) => (
+                    <option key={t.slug} value={t.slug}>
+                      {t.title}
+                    </option>
+                  ))}
+                </optgroup>
+              );
+            })}
           </select>
           <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--sl-color-text-muted)', marginTop: '0.35rem' }}>
             Los usuarios verán un botón de descarga debajo del título apuntando a esta plantilla .md.

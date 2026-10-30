@@ -67,7 +67,7 @@ export default function Header() {
             Documentación
           </Link>
           <Link 
-            href="/docs/plantillas/rq-01-checklist-discovery" 
+            href="/docs/plantillas" 
             className={`sl-nav-link ${pathname?.startsWith('/docs/plantillas') ? 'active' : ''}`}
           >
             Plantillas
@@ -171,11 +171,11 @@ export default function Header() {
                 <span>Documentación</span>
               </Link>
               <Link 
-                href="/docs/plantillas/rq-01-checklist-discovery" 
+                href="/docs/plantillas" 
                 className={`sl-mobile-nav-item ${pathname?.startsWith('/docs/plantillas') ? 'active' : ''}`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <span>Plantillas y Guías</span>
+                <span>Plantillas por Fases</span>
               </Link>
 
               {authState.isAuthenticated && isAdmin && (

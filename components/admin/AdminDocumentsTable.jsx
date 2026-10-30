@@ -459,11 +459,20 @@ export default function AdminDocumentsTable({ initialDocuments = [], categories 
                         title="Selecciona la plantilla descargable (.md) para este documento"
                       >
                         <option value="">-- Sin plantilla --</option>
-                        {availableTemplates.map((t) => (
-                          <option key={t.slug} value={t.slug}>
-                            {t.title}
-                          </option>
-                        ))}
+                        {[1, 2, 3, 4, 5, 6, 7].map((pNum) => {
+                          const pTemplates = availableTemplates.filter((t) => (t.phase || 1) === pNum);
+                          if (pTemplates.length === 0) return null;
+                          const label = pTemplates[0]?.phaseMeta?.shortName || `Fase ${pNum}`;
+                          return (
+                            <optgroup key={pNum} label={`Fase ${pNum} — ${label}`}>
+                              {pTemplates.map((t) => (
+                                <option key={t.slug} value={t.slug}>
+                                  {t.title}
+                                </option>
+                              ))}
+                            </optgroup>
+                          );
+                        })}
                       </select>
                     </td>
 
