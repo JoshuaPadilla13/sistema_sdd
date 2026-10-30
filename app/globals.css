@@ -637,6 +637,43 @@ body.sl-sidebar-collapsed .sl-toc-pane,
   margin-bottom: 1.25rem;
 }
 
+/* Callouts / GitHub Alerts Estilizados */
+.sl-callout {
+  margin: 1.25rem 0;
+  padding: 0.85rem 1.15rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.sl-callout p:last-child {
+  margin-bottom: 0;
+}
+
+.sl-callout-note {
+  border-left: 4px solid #388bfd !important;
+  background-color: rgba(56, 139, 253, 0.1) !important;
+  border: 1px solid rgba(56, 139, 253, 0.3);
+}
+
+.sl-callout-tip {
+  border-left: 4px solid #a371f7 !important;
+  background-color: rgba(163, 113, 247, 0.12) !important;
+  border: 1px solid rgba(163, 113, 247, 0.3);
+}
+
+.sl-callout-caution {
+  border-left: 4px solid #d29922 !important;
+  background-color: rgba(210, 153, 34, 0.12) !important;
+  border: 1px solid rgba(210, 153, 34, 0.3);
+}
+
+.sl-callout-danger {
+  border-left: 4px solid #f85149 !important;
+  background-color: rgba(248, 81, 73, 0.12) !important;
+  border: 1px solid rgba(248, 81, 73, 0.3);
+}
+
 .sl-prose pre {
   background-color: #161b22;
   border: 1px solid var(--sl-color-border);

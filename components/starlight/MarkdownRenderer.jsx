@@ -48,6 +48,70 @@ export function TemplateDownloadButton({ template }) {
   );
 }
 
+const CALLOUT_ALERT_THEMES = {
+  note: {
+    title: 'Nota',
+    icon: 'ℹ️',
+    color: '#58a6ff',
+    border: '#388bfd',
+    bg: 'rgba(56, 139, 253, 0.1)',
+  },
+  tip: {
+    title: 'Consejo',
+    icon: '💡',
+    color: '#bc8cff',
+    border: '#a371f7',
+    bg: 'rgba(163, 113, 247, 0.12)',
+  },
+  caution: {
+    title: 'Precaución',
+    icon: '⚠️',
+    color: '#f2cc60',
+    border: '#d29922',
+    bg: 'rgba(210, 153, 34, 0.12)',
+  },
+  warning: {
+    title: 'Precaución',
+    icon: '⚠️',
+    color: '#f2cc60',
+    border: '#d29922',
+    bg: 'rgba(210, 153, 34, 0.12)',
+  },
+  danger: {
+    title: 'Peligro',
+    icon: '🚨',
+    color: '#ff7b72',
+    border: '#f85149',
+    bg: 'rgba(248, 81, 73, 0.12)',
+  },
+};
+
+function cleanAlertChildren(children) {
+  const list = React.Children.toArray(children);
+  let stripped = false;
+  return list.map((child, idx) => {
+    if (!stripped && React.isValidElement(child) && child.props && child.props.children) {
+      const pChildren = React.Children.toArray(child.props.children);
+      const newPChildren = pChildren.map((subChild) => {
+        if (!stripped && typeof subChild === 'string') {
+          const replaced = subChild.replace(/^\[!(NOTE|TIP|CAUTION|WARNING|DANGER)\]\s*\n?/i, '');
+          if (replaced !== subChild) {
+            stripped = true;
+            return replaced;
+          }
+        }
+        return subChild;
+      });
+      // Si el primer párrafo quedó completamente vacío tras remover el tag [!TAG], omitirlo
+      if (newPChildren.every((c) => typeof c === 'string' && c.trim() === '')) {
+        return null;
+      }
+      return React.cloneElement(child, { key: child.key || idx }, ...newPChildren);
+    }
+    return child;
+  }).filter(Boolean);
+}
+
 export default function MarkdownRenderer({ content = '', template = null }) {
   // Omitir bloque Frontmatter inicial si está presente
   const cleanContent = content.replace(/^---[\s\S]*?---\s*/, '');
@@ -94,6 +158,60 @@ export default function MarkdownRenderer({ content = '', template = null }) {
                 {children}
               </code>
             );
+          },
+          blockquote: ({ node, children, ...props }) => {
+            let alertType = null;
+            if (node && node.children) {
+              for (const child of node.children) {
+                if (child.type === 'element' && child.tagName === 'p' && child.children && child.children[0]?.type === 'text') {
+                  const match = child.children[0].value.match(/^\[!(NOTE|TIP|CAUTION|WARNING|DANGER)\]/i);
+                  if (match) {
+                    alertType = match[1].toLowerCase();
+                    break;
+                  }
+                }
+              }
+            }
+
+            if (alertType && CALLOUT_ALERT_THEMES[alertType]) {
+              const theme = CALLOUT_ALERT_THEMES[alertType];
+              const cleanedChildren = cleanAlertChildren(children);
+
+              return (
+                <div
+                  className={`sl-callout sl-callout-${alertType}`}
+                  style={{
+                    margin: '1.25rem 0',
+                    padding: '0.85rem 1.15rem',
+                    borderRadius: '8px',
+                    borderLeft: `4px solid ${theme.border}`,
+                    border: `1px solid ${theme.border}44`,
+                    background: theme.bg,
+                    color: 'var(--sl-color-text)',
+                  }}
+                >
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      color: theme.color,
+                      marginBottom: '0.4rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.45rem',
+                      fontSize: '0.9rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.03em',
+                    }}
+                  >
+                    <span>{theme.icon}</span>
+                    <span>{theme.title}</span>
+                  </div>
+                  <div style={{ lineHeight: 1.6 }}>{cleanedChildren}</div>
+                </div>
+              );
+            }
+
+            return <blockquote {...props}>{children}</blockquote>;
           },
         }}
       >

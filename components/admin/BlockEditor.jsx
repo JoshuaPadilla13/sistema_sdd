@@ -23,6 +23,57 @@ import {
 import MarkdownRenderer from '../starlight/MarkdownRenderer';
 import { blocksToMarkdown, markdownToBlocks } from '../../lib/blocks';
 
+export const CALLOUT_THEMES = {
+  note: {
+    id: 'note',
+    label: 'Nota',
+    icon: 'ℹ️',
+    color: '#58a6ff',             // Azul
+    border: '#388bfd',
+    borderLight: 'rgba(56, 139, 253, 0.45)',
+    bg: 'rgba(56, 139, 253, 0.1)',
+    bgCard: 'rgba(56, 139, 253, 0.05)',
+    badgeBg: 'rgba(56, 139, 253, 0.2)',
+    badgeText: '#79c0ff',
+  },
+  tip: {
+    id: 'tip',
+    label: 'Consejo',
+    icon: '💡',
+    color: '#bc8cff',             // Púrpura / Morado
+    border: '#a371f7',
+    borderLight: 'rgba(163, 113, 247, 0.45)',
+    bg: 'rgba(163, 113, 247, 0.12)',
+    bgCard: 'rgba(163, 113, 247, 0.05)',
+    badgeBg: 'rgba(163, 113, 247, 0.22)',
+    badgeText: '#d2a8ff',
+  },
+  caution: {
+    id: 'caution',
+    label: 'Precaución',
+    icon: '⚠️',
+    color: '#f2cc60',             // Amarillo
+    border: '#d29922',
+    borderLight: 'rgba(210, 153, 34, 0.45)',
+    bg: 'rgba(210, 153, 34, 0.12)',
+    bgCard: 'rgba(210, 153, 34, 0.05)',
+    badgeBg: 'rgba(210, 153, 34, 0.22)',
+    badgeText: '#f2cc60',
+  },
+  danger: {
+    id: 'danger',
+    label: 'Peligro',
+    icon: '🚨',
+    color: '#ff7b72',             // Rojo
+    border: '#f85149',
+    borderLight: 'rgba(248, 81, 73, 0.45)',
+    bg: 'rgba(248, 81, 73, 0.12)',
+    bgCard: 'rgba(248, 81, 73, 0.05)',
+    badgeBg: 'rgba(248, 81, 73, 0.22)',
+    badgeText: '#ff7b72',
+  },
+};
+
 export default function BlockEditor({ 
   initialBlocks = [], 
   initialMarkdown = '', 
@@ -73,7 +124,7 @@ export default function BlockEditor({
   };
 
   // Añadir un nuevo bloque
-  const addBlock = (type) => {
+  const addBlock = (type, variant = 'note') => {
     let newBlock;
     switch (type) {
       case 'heading':
@@ -85,9 +136,21 @@ export default function BlockEditor({
       case 'code':
         newBlock = { id: genId(), type: 'code', language: 'javascript', content: '// Tu código aquí' };
         break;
-      case 'callout':
-        newBlock = { id: genId(), type: 'callout', variant: 'note', content: 'Nota importante aquí...' };
+      case 'callout': {
+        const defaultTexts = {
+          note: 'Nota informativa aquí...',
+          tip: 'Consejo o recomendación aquí...',
+          caution: 'Precaución o advertencia importante...',
+          danger: 'Aviso crítico o de peligro...',
+        };
+        newBlock = {
+          id: genId(),
+          type: 'callout',
+          variant: variant || 'note',
+          content: defaultTexts[variant] || 'Nota importante aquí...',
+        };
         break;
+      }
       case 'list':
         newBlock = { id: genId(), type: 'list', items: ['Elemento 1', 'Elemento 2'] };
         break;
@@ -341,24 +404,52 @@ export default function BlockEditor({
                     <p style={{ fontSize: '0.85rem', marginTop: '0.25rem' }}>Usa la barra superior para comenzar a añadir contenido modular.</p>
                   </div>
                 ) : (
-                  blocks.map((block, idx) => (
-                    <div
-                      key={block.id || idx}
-                      style={{
-                        background: 'var(--sl-color-bg-sidebar)',
-                        border: '1px solid var(--sl-color-border)',
-                        borderRadius: '8px',
-                        padding: '1rem',
-                        transition: 'border-color 0.15s ease',
-                      }}
-                    >
-                      {/* HEADER DE CONTROL DEL BLOQUE */}
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--sl-color-text-muted)', background: 'rgba(255,255,255,0.08)', padding: '0.15rem 0.4rem', borderRadius: '4px', textTransform: 'uppercase' }}>
-                            #{idx + 1} {block.type}
-                          </span>
-                        </div>
+                  blocks.map((block, idx) => {
+                    const isCallout = block.type === 'callout';
+                    const calloutTheme = isCallout
+                      ? (CALLOUT_THEMES[block.variant] || CALLOUT_THEMES.note)
+                      : null;
+
+                    return (
+                      <div
+                        key={block.id || idx}
+                        style={{
+                          background: calloutTheme ? calloutTheme.bgCard : 'var(--sl-color-bg-sidebar)',
+                          border: calloutTheme ? `1px solid ${calloutTheme.borderLight}` : '1px solid var(--sl-color-border)',
+                          borderLeft: calloutTheme ? `5px solid ${calloutTheme.border}` : '1px solid var(--sl-color-border)',
+                          borderRadius: '8px',
+                          padding: '1rem',
+                          transition: 'border-color 0.15s ease, background-color 0.15s ease',
+                        }}
+                      >
+                        {/* HEADER DE CONTROL DEL BLOQUE */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '0.5rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                            {calloutTheme ? (
+                              <span
+                                style={{
+                                  fontSize: '0.75rem',
+                                  fontWeight: 700,
+                                  color: calloutTheme.badgeText,
+                                  background: calloutTheme.badgeBg,
+                                  border: `1px solid ${calloutTheme.borderLight}`,
+                                  padding: '0.18rem 0.55rem',
+                                  borderRadius: '4px',
+                                  textTransform: 'uppercase',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '0.35rem',
+                                }}
+                              >
+                                <span>{calloutTheme.icon}</span>
+                                <span>#{idx + 1} Callout ({calloutTheme.label})</span>
+                              </span>
+                            ) : (
+                              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--sl-color-text-muted)', background: 'rgba(255,255,255,0.08)', padding: '0.15rem 0.4rem', borderRadius: '4px', textTransform: 'uppercase' }}>
+                                #{idx + 1} {block.type}
+                              </span>
+                            )}
+                          </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                           <button
@@ -498,42 +589,100 @@ export default function BlockEditor({
 
                       {block.type === 'callout' && (
                         <div>
-                          <div style={{ marginBottom: '0.5rem' }}>
-                            <select
-                              value={block.variant || 'note'}
-                              onChange={(e) => modifyBlock(block.id, 'variant', e.target.value)}
-                              style={{
-                                background: 'var(--sl-color-bg)',
-                                color: 'var(--sl-color-text)',
-                                border: '1px solid var(--sl-color-border)',
-                                borderRadius: '4px',
-                                padding: '0.3rem 0.5rem',
-                                fontSize: '0.82rem',
-                                textTransform: 'uppercase',
-                              }}
-                            >
-                              <option value="note">ℹ️ Nota (Note)</option>
-                              <option value="tip">💡 Consejo (Tip)</option>
-                              <option value="caution">⚠️ Precaución (Caution)</option>
-                              <option value="danger">🚨 Peligro (Danger)</option>
-                            </select>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+                            <span style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--sl-color-text-muted)' }}>
+                              Tipo de Callout:
+                            </span>
+                            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                              {Object.entries(CALLOUT_THEMES).map(([key, theme]) => {
+                                const isActive = (block.variant || 'note') === key;
+                                return (
+                                  <button
+                                    key={key}
+                                    type="button"
+                                    onClick={() => modifyBlock(block.id, 'variant', key)}
+                                    style={{
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '0.35rem',
+                                      fontSize: '0.8rem',
+                                      fontWeight: isActive ? 700 : 500,
+                                      padding: '0.3rem 0.65rem',
+                                      borderRadius: '6px',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.15s ease',
+                                      color: isActive ? theme.color : 'var(--sl-color-text-muted)',
+                                      background: isActive ? theme.badgeBg : 'rgba(255, 255, 255, 0.04)',
+                                      border: isActive ? `1.5px solid ${theme.border}` : '1px solid var(--sl-color-border)',
+                                      boxShadow: isActive ? `0 0 10px ${theme.border}33` : 'none',
+                                    }}
+                                  >
+                                    <span>{theme.icon}</span>
+                                    <span>{theme.label}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </div>
+
                           <textarea
                             value={block.content || ''}
                             onChange={(e) => modifyBlock(block.id, 'content', e.target.value)}
                             rows={3}
-                            placeholder="Mensaje de alerta o callout..."
+                            placeholder={`Escribe el mensaje del callout (${calloutTheme.label})...`}
                             style={{
                               width: '100%',
                               background: 'var(--sl-color-bg)',
                               color: 'var(--sl-color-text)',
-                              border: '1px solid var(--sl-color-border)',
+                              border: `1px solid ${calloutTheme.borderLight}`,
                               borderRadius: '6px',
-                              padding: '0.6rem',
+                              padding: '0.65rem 0.85rem',
                               fontSize: '0.88rem',
+                              lineHeight: 1.5,
                               resize: 'vertical',
+                              outline: 'none',
                             }}
                           />
+
+                          {/* VISTA PREVIA INTERACTIVA DENTRO DEL BLOQUE */}
+                          <div
+                            style={{
+                              marginTop: '0.65rem',
+                              padding: '0.75rem 1rem',
+                              borderRadius: '6px',
+                              background: calloutTheme.bg,
+                              borderLeft: `4px solid ${calloutTheme.border}`,
+                              border: `1px solid ${calloutTheme.borderLight}`,
+                              color: 'var(--sl-color-text)',
+                              fontSize: '0.86rem',
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontWeight: 700,
+                                color: calloutTheme.color,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.4rem',
+                                marginBottom: '0.35rem',
+                                fontSize: '0.8rem',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.03em',
+                              }}
+                            >
+                              <span>{calloutTheme.icon}</span>
+                              <span>{calloutTheme.label}</span>
+                            </div>
+                            <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.5, opacity: 0.95 }}>
+                              {block.content ? (
+                                block.content
+                              ) : (
+                                <span style={{ opacity: 0.45, fontStyle: 'italic' }}>
+                                  Escribe el texto de la alerta arriba para previsualizar...
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       )}
 
@@ -702,8 +851,9 @@ export default function BlockEditor({
                         </div>
                       )}
                     </div>
-                  ))
-                )}
+                  );
+                })
+              )}
               </div>
             </div>
           ) : (
