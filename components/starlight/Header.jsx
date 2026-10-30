@@ -44,8 +44,8 @@ export default function Header() {
     setMobileMenuOpen(false);
   }, [pathname]);
 
-  const isAdmin = authState.roles.includes('ADMIN') || authState.isSuperAdmin;
-  const isSuperAdmin = authState.isSuperAdmin;
+  const isSuperAdmin = !authState.loading && (!!authState.isSuperAdmin || authState.roles.includes('SUPER_ADMIN'));
+  const isAdmin = !authState.loading && (authState.roles.includes('ADMIN') || isSuperAdmin);
 
   return (
     <>
@@ -73,36 +73,41 @@ export default function Header() {
             Plantillas
           </Link>
 
-          {/* PESTAÑAS ADMINISTRATIVAS VISIBLES PARA TODOS */}
-          <Link
-            href="/admin"
-            className={`sl-nav-link ${pathname?.startsWith('/admin') ? 'active' : ''}`}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.35rem',
-              color: 'var(--sl-badge-caution)',
-              fontWeight: 600,
-            }}
-          >
-            <Settings size={15} />
-            <span>Administrador</span>
-          </Link>
+          {/* PESTAÑA ADMINISTRADOR: Solo visible con permisos de Admin o Super Admin */}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              className={`sl-nav-link ${pathname?.startsWith('/admin') ? 'active' : ''}`}
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.35rem',
+                color: 'var(--sl-badge-caution)',
+                fontWeight: 600,
+              }}
+            >
+              <Settings size={15} />
+              <span>Administrador</span>
+            </Link>
+          )}
 
-          <Link
-            href="/superadmin"
-            className={`sl-nav-link ${pathname?.startsWith('/superadmin') ? 'active' : ''}`}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.35rem',
-              color: '#ff7b72',
-              fontWeight: 600,
-            }}
-          >
-            <Shield size={15} />
-            <span>Super Admin</span>
-          </Link>
+          {/* PESTAÑA SUPER ADMIN: Solo visible con permisos de Super Admin */}
+          {isSuperAdmin && (
+            <Link
+              href="/superadmin"
+              className={`sl-nav-link ${pathname?.startsWith('/superadmin') ? 'active' : ''}`}
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.35rem',
+                color: '#ff7b72',
+                fontWeight: 600,
+              }}
+            >
+              <Shield size={15} />
+              <span>Super Admin</span>
+            </Link>
+          )}
 
           {/* ESTADO DE SESIÓN (DESKTOP) */}
           {!authState.loading && (
@@ -174,25 +179,31 @@ export default function Header() {
                 <span>Plantillas por Fases</span>
               </Link>
 
-              <Link
-                href="/admin"
-                className={`sl-mobile-nav-item ${pathname?.startsWith('/admin') ? 'active' : ''}`}
-                onClick={() => setMobileMenuOpen(false)}
-                style={{ color: 'var(--sl-badge-caution)' }}
-              >
-                <Settings size={18} />
-                <span>Panel Administrador</span>
-              </Link>
+              {/* PESTAÑA ADMINISTRADOR (MÓVIL): Solo visible con permisos de Admin o Super Admin */}
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className={`sl-mobile-nav-item ${pathname?.startsWith('/admin') ? 'active' : ''}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  style={{ color: 'var(--sl-badge-caution)' }}
+                >
+                  <Settings size={18} />
+                  <span>Panel Administrador</span>
+                </Link>
+              )}
 
-              <Link
-                href="/superadmin"
-                className={`sl-mobile-nav-item ${pathname?.startsWith('/superadmin') ? 'active' : ''}`}
-                onClick={() => setMobileMenuOpen(false)}
-                style={{ color: '#ff7b72' }}
-              >
-                <Shield size={18} />
-                <span>Panel Super Admin</span>
-              </Link>
+              {/* PESTAÑA SUPER ADMIN (MÓVIL): Solo visible con permisos de Super Admin */}
+              {isSuperAdmin && (
+                <Link
+                  href="/superadmin"
+                  className={`sl-mobile-nav-item ${pathname?.startsWith('/superadmin') ? 'active' : ''}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  style={{ color: '#ff7b72' }}
+                >
+                  <Shield size={18} />
+                  <span>Panel Super Admin</span>
+                </Link>
+              )}
 
               <div className="sl-mobile-nav-divider" />
 
