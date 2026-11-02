@@ -190,13 +190,28 @@ export default function TemplatesByPhase({ initialTemplates = [], title, subtitl
 
         <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
           <a
-            href="/api/agent-factory/download"
-            download="agent-factory-sdd.zip"
+            href="/api/agent-factory-v4/download"
+            download="AGENT-FACTORY-V4-ACTUAL.zip"
             className="sl-btn sl-btn-primary"
-            style={{ fontSize: '0.85rem', padding: '0.45rem 0.9rem', gap: '0.4rem' }}
+            style={{ 
+              fontSize: '0.85rem', 
+              padding: '0.45rem 0.95rem', 
+              gap: '0.45rem',
+              background: 'linear-gradient(135deg, #1f6feb 0%, #238636 100%)',
+              borderColor: '#2ea043'
+            }}
           >
             <FolderArchive size={15} />
-            <span>Descargar Kit Completo en ZIP</span>
+            <span>Descargar Kit V4 (+ ACTUAL) .ZIP</span>
+          </a>
+          <a
+            href="/api/agent-factory/download"
+            download="agent-factory-sdd.zip"
+            className="sl-btn sl-btn-outline"
+            style={{ fontSize: '0.85rem', padding: '0.45rem 0.9rem', gap: '0.4rem' }}
+          >
+            <Download size={14} />
+            <span>Descargar Kit V1 Base .ZIP</span>
           </a>
         </div>
       </div>

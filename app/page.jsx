@@ -115,9 +115,23 @@ export default async function HomePage() {
                   Metodología estandarizada de 7 fases para transformar requerimientos de negocio en software riguroso, testeable y ejecutable por equipos e IA.
                 </p>
                 <div className="sl-hero-actions">
-                  <a href="/api/agent-factory/download" download className="sl-btn sl-btn-primary" style={{ gap: '0.5rem' }}>
+                  <a 
+                    href="/api/agent-factory-v4/download" 
+                    download="AGENT-FACTORY-V4-ACTUAL.zip" 
+                    className="sl-btn sl-btn-primary" 
+                    style={{ gap: '0.5rem', background: 'linear-gradient(135deg, #1f6feb 0%, #238636 100%)', borderColor: '#2ea043' }}
+                  >
                     <Download size={16} />
-                    <span>Descargar AGENT FACTORY (.ZIP)</span>
+                    <span>Descargar AGENT FACTORY V4 (+ ACTUAL)</span>
+                  </a>
+                  <a 
+                    href="/api/agent-factory/download" 
+                    download="agent-factory-sdd.zip" 
+                    className="sl-btn sl-btn-outline" 
+                    style={{ gap: '0.5rem' }}
+                  >
+                    <Download size={16} />
+                    <span>Descargar V1 Base</span>
                   </a>
                   <Link href="/docs/introduccion/agent-factory" className="sl-btn sl-btn-outline" style={{ gap: '0.45rem' }}>
                     <Bot size={16} />
@@ -141,10 +155,10 @@ export default async function HomePage() {
             </div>
           </section>
 
-          {/* BANNER DESTACADO: KIT BASE AGENT FACTORY */}
+          {/* BANNER DESTACADO: KITS AGENT FACTORY */}
           <section style={{
             marginTop: '2.5rem',
-            background: 'linear-gradient(135deg, rgba(88, 166, 255, 0.1) 0%, rgba(188, 140, 255, 0.08) 100%)',
+            background: 'linear-gradient(135deg, rgba(88, 166, 255, 0.1) 0%, rgba(46, 160, 67, 0.08) 100%)',
             border: '1px solid rgba(88, 166, 255, 0.35)',
             borderRadius: '12px',
             padding: '1.75rem 2rem',
@@ -152,77 +166,103 @@ export default async function HomePage() {
           }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem' }}>
               <div style={{ flex: '1 1 500px' }}>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(88, 166, 255, 0.2)', color: '#58a6ff', padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.75rem', letterSpacing: '0.04em' }}>
-                  <Sparkles size={13} />
-                  <span>Kit Base Oficial para Nuevos Proyectos</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(46, 160, 67, 0.2)', color: '#7ee787', padding: '0.25rem 0.75rem', borderRadius: '20px', fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', border: '1px solid rgba(46, 160, 67, 0.4)' }}>
+                    <Sparkles size={13} />
+                    <span>Versión 4.0 (+ ACTUAL) — Kit Completo Fases 1 & 2</span>
+                  </div>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--sl-color-text-muted)', background: 'rgba(255, 255, 255, 0.06)', padding: '0.2rem 0.6rem', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                    164 KB · ZIP
+                  </span>
                 </div>
-                <h2 style={{ fontSize: '1.5rem', color: 'var(--sl-color-text-title)', marginBottom: '0.65rem' }}>
-                  📦 AGENT FACTORY — Fase 01 Requerimientos (SDD)
+
+                <h2 style={{ fontSize: '1.55rem', color: 'var(--sl-color-text-title)', marginBottom: '0.65rem' }}>
+                  🚀 AGENT FACTORY V4 (+ ACTUAL) — Requerimientos & Plan / Diseño
                 </h2>
                 <p style={{ color: 'var(--sl-color-text-muted)', fontSize: '0.94rem', lineHeight: '1.6', marginBottom: '1.25rem' }}>
-                  Paquete base comprimido con la configuración completa del agente, las <strong>9 skills</strong> especializadas, <strong>convenciones</strong> obligatorias, <strong>instructivos</strong>, <strong>plantillas</strong> y estructura de carpetas:
+                  Paquete integral con la última configuración de agentes de IA para <strong>Kiro</strong>: incluye <strong>Fase 01 Requerimientos</strong> (<code>sdd-01</code>) y <strong>Fase 02 Plan/Diseño</strong> (<code>sdd-02</code>), hooks automáticos de calidad, scripts de validación PowerShell, guía SDD explicada y el repertorio oficial de plantillas y skills:
                 </p>
 
-                {/* 3 MODOS DE USO */}
+                {/* CARDS DE CAPACIDADES V4 */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem', marginBottom: '1.25rem' }}>
                   <div style={{ background: 'var(--sl-color-bg)', border: '1px solid var(--sl-color-border)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
                     <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#58a6ff', marginBottom: '0.2rem' }}>
-                      Modo 1 · Post-Sesión
+                      Agente 01 · Requerimientos
                     </div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--sl-color-text-muted)', lineHeight: '1.4' }}>
-                      Genera RQ-01, RQ-02 y RQ-03 tras cada sesión y reporta los pendientes críticos.
-                    </div>
-                  </div>
-                  <div style={{ background: 'var(--sl-color-bg)', border: '1px solid var(--sl-color-border)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#7ee787', marginBottom: '0.2rem' }}>
-                      Modo 2 · Documentación
-                    </div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--sl-color-text-muted)', lineHeight: '1.4' }}>
-                      Genera en orden RQ-04 a RQ-08 y ejecuta la revisión de consistencia.
+                      Generación de RQ-01 a RQ-08, Gherkin, criterios EARS, reglas de negocio y resolución de pendientes.
                     </div>
                   </div>
                   <div style={{ background: 'var(--sl-color-bg)', border: '1px solid var(--sl-color-border)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
                     <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#f2cc60', marginBottom: '0.2rem' }}>
-                      Modo 3 · Resolución
+                      Agente 02 · Plan / Diseño
                     </div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--sl-color-text-muted)', lineHeight: '1.4' }}>
-                      Cierra pendientes PEN respondidos y propaga versiones a todos los docs.
+                      Selección de stack, ambientes, draw.io, modelo de datos, contratos de endpoints y estrategia de QA.
+                    </div>
+                  </div>
+                  <div style={{ background: 'var(--sl-color-bg)', border: '1px solid var(--sl-color-border)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.85rem', color: '#7ee787', marginBottom: '0.2rem' }}>
+                      Hooks & Scripts de Calidad
+                    </div>
+                    <div style={{ fontSize: '0.78rem', color: 'var(--sl-color-text-muted)', lineHeight: '1.4' }}>
+                      <code>sdd-calidad.json</code>, <code>sdd-check.ps1</code> y <code>sdd-guard.ps1</code> para control y auditoría continua.
                     </div>
                   </div>
                 </div>
 
                 <div style={{ fontSize: '0.8rem', color: 'var(--sl-color-text-muted)' }}>
-                  <strong>Contenido del ZIP:</strong> <code>/.kiro/agents</code>, <code>/.kiro/skills</code>, <code>/.kiro/steering</code>, <code>/instructivos</code>, <code>/documentacion</code>, <code>/templates</code>, <code>/transcripciones discovery</code> y <code>README.md</code>.
+                  <strong>Contenido del ZIP V4:</strong> <code>/.kiro/agents</code> (sdd-01, sdd-02), <code>/.kiro/hooks</code>, <code>/.kiro/scripts</code>, <code>/.kiro/skills</code> (fase 1 y 2), <code>/templates</code>, <code>/instructivos</code>, <code>GUIA-SDD-EXPLICADA.md</code> y <code>README.md</code>.
                 </div>
               </div>
 
               {/* ACCIONES DE DESCARGA */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignSelf: 'center', minWidth: '220px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignSelf: 'center', minWidth: '240px' }}>
                 <a
-                  href="/api/agent-factory/download"
-                  download="agent-factory-sdd.zip"
+                  href="/api/agent-factory-v4/download"
+                  download="AGENT-FACTORY-V4-ACTUAL.zip"
                   className="sl-btn sl-btn-primary"
                   style={{
-                    padding: '0.75rem 1.25rem',
+                    padding: '0.8rem 1.25rem',
                     fontSize: '0.92rem',
                     fontWeight: 700,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.6rem',
-                    boxShadow: '0 4px 14px rgba(88, 166, 255, 0.4)'
+                    background: 'linear-gradient(135deg, #238636 0%, #2ea043 100%)',
+                    borderColor: '#2ea043',
+                    boxShadow: '0 4px 14px rgba(46, 160, 67, 0.4)'
                   }}
                 >
                   <Download size={18} />
-                  <span>Descargar ZIP Base</span>
+                  <span>Descargar V4 (+ ACTUAL) .ZIP</span>
+                </a>
+
+                <a
+                  href="/api/agent-factory/download"
+                  download="agent-factory-sdd.zip"
+                  className="sl-btn sl-btn-outline"
+                  style={{
+                    padding: '0.65rem 1.15rem',
+                    fontSize: '0.84rem',
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                  }}
+                >
+                  <FolderArchive size={16} />
+                  <span>Descargar Kit V1 Base (.ZIP)</span>
                 </a>
 
                 <Link
                   href="/docs/introduccion/agent-factory"
                   className="sl-btn sl-btn-outline"
                   style={{
-                    padding: '0.6rem 1rem',
-                    fontSize: '0.85rem',
+                    padding: '0.55rem 1rem',
+                    fontSize: '0.82rem',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -230,7 +270,7 @@ export default async function HomePage() {
                   }}
                 >
                   <Bot size={15} />
-                  <span>Ver Prompt y Guía</span>
+                  <span>Ver Guía del Agente</span>
                 </Link>
               </div>
             </div>
