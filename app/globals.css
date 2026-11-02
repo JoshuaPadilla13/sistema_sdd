@@ -639,11 +639,14 @@ body.sl-sidebar-collapsed .sl-toc-pane,
 
 /* Callouts / GitHub Alerts Estilizados */
 .sl-callout {
-  margin: 1.25rem 0;
-  padding: 0.85rem 1.15rem;
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
   border-radius: 8px;
   font-size: 0.95rem;
   line-height: 1.6;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
 .sl-callout p:last-child {
@@ -651,27 +654,35 @@ body.sl-sidebar-collapsed .sl-toc-pane,
 }
 
 .sl-callout-note {
-  border-left: 4px solid #388bfd !important;
-  background-color: rgba(56, 139, 253, 0.1) !important;
-  border: 1px solid rgba(56, 139, 253, 0.3);
+  border-left: 5px solid #388bfd !important;
+  background-color: rgba(56, 139, 253, 0.18) !important;
+  background-image: linear-gradient(135deg, rgba(56, 139, 253, 0.24) 0%, rgba(56, 139, 253, 0.12) 100%) !important;
+  border: 1px solid rgba(56, 139, 253, 0.45) !important;
+  border-left-width: 5px !important;
 }
 
 .sl-callout-tip {
-  border-left: 4px solid #a371f7 !important;
-  background-color: rgba(163, 113, 247, 0.12) !important;
-  border: 1px solid rgba(163, 113, 247, 0.3);
+  border-left: 5px solid #a371f7 !important;
+  background-color: rgba(163, 113, 247, 0.18) !important;
+  background-image: linear-gradient(135deg, rgba(163, 113, 247, 0.24) 0%, rgba(163, 113, 247, 0.12) 100%) !important;
+  border: 1px solid rgba(163, 113, 247, 0.45) !important;
+  border-left-width: 5px !important;
 }
 
 .sl-callout-caution {
-  border-left: 4px solid #d29922 !important;
-  background-color: rgba(210, 153, 34, 0.12) !important;
-  border: 1px solid rgba(210, 153, 34, 0.3);
+  border-left: 5px solid #d29922 !important;
+  background-color: rgba(210, 153, 34, 0.20) !important;
+  background-image: linear-gradient(135deg, rgba(210, 153, 34, 0.26) 0%, rgba(210, 153, 34, 0.12) 100%) !important;
+  border: 1px solid rgba(210, 153, 34, 0.50) !important;
+  border-left-width: 5px !important;
 }
 
 .sl-callout-danger {
-  border-left: 4px solid #f85149 !important;
-  background-color: rgba(248, 81, 73, 0.12) !important;
-  border: 1px solid rgba(248, 81, 73, 0.3);
+  border-left: 5px solid #f85149 !important;
+  background-color: rgba(248, 81, 73, 0.20) !important;
+  background-image: linear-gradient(135deg, rgba(248, 81, 73, 0.26) 0%, rgba(248, 81, 73, 0.12) 100%) !important;
+  border: 1px solid rgba(248, 81, 73, 0.50) !important;
+  border-left-width: 5px !important;
 }
 
 .sl-prose pre {

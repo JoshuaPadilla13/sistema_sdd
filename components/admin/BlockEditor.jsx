@@ -31,9 +31,10 @@ export const CALLOUT_THEMES = {
     color: '#58a6ff',             // Azul
     border: '#388bfd',
     borderLight: 'rgba(56, 139, 253, 0.45)',
-    bg: 'rgba(56, 139, 253, 0.1)',
-    bgCard: 'rgba(56, 139, 253, 0.05)',
-    badgeBg: 'rgba(56, 139, 253, 0.2)',
+    bg: 'rgba(56, 139, 253, 0.18)',
+    bgGradient: 'linear-gradient(135deg, rgba(56, 139, 253, 0.24) 0%, rgba(56, 139, 253, 0.12) 100%)',
+    bgCard: 'rgba(56, 139, 253, 0.08)',
+    badgeBg: 'rgba(56, 139, 253, 0.25)',
     badgeText: '#79c0ff',
   },
   tip: {
@@ -43,9 +44,10 @@ export const CALLOUT_THEMES = {
     color: '#bc8cff',             // Púrpura / Morado
     border: '#a371f7',
     borderLight: 'rgba(163, 113, 247, 0.45)',
-    bg: 'rgba(163, 113, 247, 0.12)',
-    bgCard: 'rgba(163, 113, 247, 0.05)',
-    badgeBg: 'rgba(163, 113, 247, 0.22)',
+    bg: 'rgba(163, 113, 247, 0.18)',
+    bgGradient: 'linear-gradient(135deg, rgba(163, 113, 247, 0.24) 0%, rgba(163, 113, 247, 0.12) 100%)',
+    bgCard: 'rgba(163, 113, 247, 0.08)',
+    badgeBg: 'rgba(163, 113, 247, 0.25)',
     badgeText: '#d2a8ff',
   },
   caution: {
@@ -54,10 +56,11 @@ export const CALLOUT_THEMES = {
     icon: '⚠️',
     color: '#f2cc60',             // Amarillo
     border: '#d29922',
-    borderLight: 'rgba(210, 153, 34, 0.45)',
-    bg: 'rgba(210, 153, 34, 0.12)',
-    bgCard: 'rgba(210, 153, 34, 0.05)',
-    badgeBg: 'rgba(210, 153, 34, 0.22)',
+    borderLight: 'rgba(210, 153, 34, 0.50)',
+    bg: 'rgba(210, 153, 34, 0.20)',
+    bgGradient: 'linear-gradient(135deg, rgba(210, 153, 34, 0.26) 0%, rgba(210, 153, 34, 0.12) 100%)',
+    bgCard: 'rgba(210, 153, 34, 0.08)',
+    badgeBg: 'rgba(210, 153, 34, 0.28)',
     badgeText: '#f2cc60',
   },
   danger: {
@@ -66,10 +69,11 @@ export const CALLOUT_THEMES = {
     icon: '🚨',
     color: '#ff7b72',             // Rojo
     border: '#f85149',
-    borderLight: 'rgba(248, 81, 73, 0.45)',
-    bg: 'rgba(248, 81, 73, 0.12)',
-    bgCard: 'rgba(248, 81, 73, 0.05)',
-    badgeBg: 'rgba(248, 81, 73, 0.22)',
+    borderLight: 'rgba(248, 81, 73, 0.50)',
+    bg: 'rgba(248, 81, 73, 0.20)',
+    bgGradient: 'linear-gradient(135deg, rgba(248, 81, 73, 0.26) 0%, rgba(248, 81, 73, 0.12) 100%)',
+    bgCard: 'rgba(248, 81, 73, 0.08)',
+    badgeBg: 'rgba(248, 81, 73, 0.28)',
     badgeText: '#ff7b72',
   },
 };
@@ -650,9 +654,11 @@ export default function BlockEditor({
                               marginTop: '0.65rem',
                               padding: '0.75rem 1rem',
                               borderRadius: '6px',
-                              background: calloutTheme.bg,
+                              background: calloutTheme.bgGradient || calloutTheme.bg,
+                              backgroundColor: calloutTheme.bg,
                               borderLeft: `4px solid ${calloutTheme.border}`,
                               border: `1px solid ${calloutTheme.borderLight}`,
+                              boxShadow: `0 3px 12px ${calloutTheme.border}22`,
                               color: 'var(--sl-color-text)',
                               fontSize: '0.86rem',
                             }}
